@@ -22,9 +22,6 @@
 
 package org.jboss.spec.jsr373.apiexample.resource;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -39,11 +36,13 @@ import java.util.Set;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
+import org.jboss.spec.jsr373.apiexample.UrlUtil;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
  */
 public class ResourceInstance {
+    private final UrlUtil urlUtil;
     private final URL url;
     private final ResourceTemplate template;
     private final ResourceInstance parent;
@@ -51,8 +50,9 @@ public class ResourceInstance {
     private final Map<String, ModelNode> attributes;
     private final Map<String, Set<ResourceInstance>> children = new LinkedHashMap<>();
 
-    private ResourceInstance(URL url, ResourceTemplate template, ResourceInstance parent,
+    private ResourceInstance(UrlUtil urlUtil, URL url, ResourceTemplate template, ResourceInstance parent,
                              String name, Map<String, ModelNode> attributes) throws IOException, URISyntaxException {
+        this.urlUtil = urlUtil;
         this.url = url;
         this.template = template;
         this.parent = parent;
@@ -95,10 +95,8 @@ public class ResourceInstance {
             }
         }
 
-        try (final PrintWriter exampleWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(url.toURI()))))) {
+        try (final PrintWriter exampleWriter = urlUtil.getWriter(url)) {
             output.writeJSONString(exampleWriter, false);
-        } catch (URISyntaxException e) {
-            throw new IOException(e);
         }
 
         for (Set<ResourceInstance> childSet : children.values()) {
@@ -193,25 +191,15 @@ public class ResourceInstance {
                 final Attribute definition = entry.getValue();
                 final ModelNode value = attributes.get(entry.getKey());
                 if (value == null || !value.isDefined()) {
-                    if (children.containsKey(entry.getKey())) {
-//                        Set<Builder> childSet = children.get(entry.getKey());
-//                        ModelNode childValue = new ModelNode();
-//                        childValue.setEmptyList();
-//                        for (Builder child : childSet) {
-//                            ModelNode link = new ModelNode();
-//                            link.get("rel").set(child.template.getUrl().toExternalForm());
-//                            link.get("href").set(child.url.toExternalForm());
-//                            childValue.add(link);
-//                        }
-//                        attributes.put(entry.getKey(), childValue);
-                    } else if (!definition.isNillable()) {
-                        throw new IllegalStateException("Attribute '" + entry.getKey() + "' is not nillable and has not been set");
+                    if (!definition.isNillable() && !children.containsKey(entry.getKey())) {
+                        throw new IllegalStateException("Attribute '" + entry.getKey() +
+                                "' is not nillable and has not been set as a child");
                     }
                     continue;
                 }
                 validateAttributeValue(definition, value);
             }
-            final ResourceInstance instance = new ResourceInstance(url, template, parent, name, attributes);
+            final ResourceInstance instance = new ResourceInstance(urlUtil, url, template, parent, name, attributes);
             if (parent != null) {
                 parent.addChild(instance);
             }

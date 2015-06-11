@@ -22,14 +22,16 @@
 
 package org.jboss.spec.jsr373.apiexample;
 
-import org.jboss.spec.jsr373.apiexample.resource.UrlUtil;
-
 /**
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
  */
 public class Main {
     public static void main(String args[]) throws Exception {
-        UrlUtil urlUtil = new UrlUtil();
+
+        //UrlUtil.ServletUrlRegistry registry = new UrlUtil.ServletUrlRegistry();
+        //UrlUtil urlUtil = UrlUtil.Factory.createServletInstance(registry);
+        UrlUtil urlUtil = UrlUtil.Factory.createFileInstance();
+
         ExampleGenerator generator = new ExampleGenerator(urlUtil);
         generator.generate();
     }

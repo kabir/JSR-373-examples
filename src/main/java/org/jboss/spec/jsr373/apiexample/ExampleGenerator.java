@@ -24,21 +24,20 @@ package org.jboss.spec.jsr373.apiexample;
 
 import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
-import org.jboss.spec.jsr373.apiexample.resource.UrlUtil;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ServerType;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
  */
-class ExampleGenerator {
+public class ExampleGenerator {
     private final UrlUtil urlUtil;
 
-    ExampleGenerator(UrlUtil urlUtil) {
+    public ExampleGenerator(UrlUtil urlUtil) {
         this.urlUtil = urlUtil;
     }
 
-    void generate() throws Exception {
+    public void generate() throws Exception {
         //Set up all the templates
         ResourceTemplate domain = ResourceTemplate.createTemplate(urlUtil, DomainType.INSTANCE);
         ResourceTemplate server = ResourceTemplate.createTemplate(urlUtil, ServerType.INSTANCE);

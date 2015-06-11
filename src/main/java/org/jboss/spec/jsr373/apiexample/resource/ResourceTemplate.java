@@ -22,9 +22,6 @@
 
 package org.jboss.spec.jsr373.apiexample.resource;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
@@ -39,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
+import org.jboss.spec.jsr373.apiexample.UrlUtil;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ManagedObjectType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.NullType;
 
@@ -84,16 +82,6 @@ public class ResourceTemplate {
     }
 
 
-    public static ResourceTemplate createTemplatex(UrlUtil urlUtil, ManagedObjectType resourceType)
-            throws IOException, URISyntaxException {
-        Builder builder =  new Builder(urlUtil, resourceType);
-        resourceType.addAttributeDescriptions(builder);
-        ResourceTemplate resource =  builder.build();
-        resource.serialize();
-        resourceType.setTemplate(resource);
-        return resource;
-    }
-
     public static void serializeTemplates() throws IOException, URISyntaxException {
         for (ResourceTemplate template : ALL_TEMPLATES) {
             template.serialize();
@@ -104,7 +92,7 @@ public class ResourceTemplate {
         return attributeMap;
     }
 
-    ManagedObjectType getResourceType() {
+    public ManagedObjectType getResourceType() {
         return resourceType;
     }
 
@@ -123,7 +111,7 @@ public class ResourceTemplate {
         addAttributes(model);
 
 
-        try (final PrintWriter exampleWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(url.toURI()))))) {
+        try (final PrintWriter exampleWriter = urlUtil.getWriter(url)) {
             model.writeJSONString(exampleWriter, false);
         }
     }

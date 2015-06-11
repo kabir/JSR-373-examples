@@ -30,6 +30,11 @@
         <extension module="org.wildfly.extension.io"/>
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
+
+    <system-properties>
+        <property name="jsr.373.servlet.root" value="http://jsr373example-kabir.rhcloud.com/contents"/>
+    </system-properties>
+
     <management>
         <security-realms>
             <security-realm name="ManagementRealm">

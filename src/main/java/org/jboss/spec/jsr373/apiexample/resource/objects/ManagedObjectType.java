@@ -22,13 +22,7 @@
 
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
@@ -49,11 +43,6 @@ public abstract class ManagedObjectType {
     private final String path;
     private ResourceTemplate template;
 
-    private static final Map<Class<? extends ManagedObjectType>, ManagedObjectType> INSTANCES;
-    static {
-        Map<Class<? extends ManagedObjectType>, ManagedObjectType> instances = new HashMap<>();
-        INSTANCES = initialiseInstances();
-    }
 
     protected ManagedObjectType(String name, String path) {
         this.name = name;
@@ -61,8 +50,7 @@ public abstract class ManagedObjectType {
     }
 
     public static ManagedObjectType getInstanceForClass(Class<? extends ManagedObjectType> type) {
-        Map x = INSTANCES;
-        return INSTANCES.get(type);
+        return ManagedObjectTypeRegistry.getInstanceForClass(type);
     }
 
     public final String getName() {
@@ -114,45 +102,5 @@ public abstract class ManagedObjectType {
         return set;
     }
 
-    private static Map<Class<? extends ManagedObjectType>, ManagedObjectType> initialiseInstances() {
-        try {
-            Map<Class<? extends ManagedObjectType>, ManagedObjectType> instances = new HashMap<>();
-            Package pkg = ManagedObjectType.class.getPackage();
-            URL url = ManagedObjectType.class.getResource(ManagedObjectType.class.getSimpleName() + ".class");
-            File packageDir = new File(url.toURI()).getParentFile();
-            for (File file : packageDir.listFiles()) {
-                String name = file.getName();
-                int index = name.indexOf(".class");
-                if (index == -1) {
-                    continue;
-                }
-                name = name.substring(0, index);
-                Class<?> clazz = Class.forName(pkg.getName() + "." + name);
-                if ((clazz.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT) {
-                    continue;
-                }
-                boolean inheritsManagedObjectType = false;
-                Class<?> current = clazz;
-                while (current != Object.class) {
-                    if (current == ManagedObjectType.class) {
-                        inheritsManagedObjectType = true;
-                        break;
-                    }
-                    current = current.getSuperclass();
-                }
-                if (inheritsManagedObjectType) {
-                    Field field = clazz.getDeclaredField("INSTANCE");
-                    ManagedObjectType type = (ManagedObjectType)field.get(null);
-                    instances.put((Class<? extends ManagedObjectType>)clazz, type);
-                }
-            }
-            return instances;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private static void addType(Map<Class<? extends ManagedObjectType>, ManagedObjectType> instances, ManagedObjectType type) {
-        instances.put(type.getClass(), type);
-    }
 }
