@@ -41,12 +41,14 @@ public abstract class ManagedObjectType {
 
     private final String name;
     private final String path;
+    private final String description;
     private ResourceTemplate template;
 
 
-    protected ManagedObjectType(String name, String path) {
+    protected ManagedObjectType(String name, String path, String description) {
         this.name = name;
         this.path = path;
+        this.description = description;
     }
 
     public static ManagedObjectType getInstanceForClass(Class<? extends ManagedObjectType> type) {
@@ -57,7 +59,9 @@ public abstract class ManagedObjectType {
         return name;
     }
 
-    public abstract String getDescription();
+    public final String getDescription() {
+        return description;
+    }
 
     public final String getPath() {
         return path;

@@ -31,7 +31,7 @@ public class Main {
         //UrlUtil.ServletUrlRegistry registry = new UrlUtil.ServletUrlRegistry();
         //UrlUtil urlUtil = UrlUtil.Factory.createServletInstance(registry);
         UrlUtil urlUtil = UrlUtil.Factory.createFileInstance();
-
+        //System.out.println(System.getProperties());
         ExampleGenerator generator = new ExampleGenerator(urlUtil);
         generator.generate();
     }

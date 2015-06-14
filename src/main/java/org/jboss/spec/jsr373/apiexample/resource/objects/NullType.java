@@ -31,16 +31,11 @@ public class NullType extends ManagedObjectType {
     public static ManagedObjectType INSTANCE = new NullType();
 
     private NullType() {
-        super("", "");
+        super("", "", "");
     }
 
     @Override
     public Set<ManagedObjectType> getParents() {
         return Collections.emptySet();
-    }
-
-    @Override
-    public String getDescription() {
-        return null;
     }
 }

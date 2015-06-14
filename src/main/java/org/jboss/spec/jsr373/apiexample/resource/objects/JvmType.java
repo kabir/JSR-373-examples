@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright ${year}, Red Hat, Inc., and individual contributors
+ * Copyright 2015, Red Hat, Inc., and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -21,6 +21,8 @@
  */
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
@@ -32,41 +34,43 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 /**
  * @author Kabir Khan
  */
-public class ServerType extends ManagedObjectType {
-    public static final String SERVER_VENDOR = "serverVendor";
-    public static final String SERVER_VERSION = "serverVersion";
-    public static final String JAVA_VMS = "javaVMs";
-    public static ManagedObjectType INSTANCE = new ServerType();
+public class JvmType extends ManagedObjectType {
+    public static final String JAVA_VENDOR = "javaVendor";
+    public static final String JAVA_VERSION = "javaVersion";
+    public static final String NODE = "node";
+    public static final JvmType INSTANCE = new JvmType();
 
-    private ServerType() {
-        super("JEEServer", "server", "Represents a Java EE server");
+    private JvmType() {
+        super("Jvm", "jvm", "Identifies a JVM used by a server");
     }
 
     @Override
     public Set<ManagedObjectType> getParents() {
-        return parents(NullType.INSTANCE, DomainType.INSTANCE);
+        return parents(NullType.INSTANCE, ServerType.INSTANCE/*Also the J2EEModule types*/);
     }
 
     @Override
     public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
         super.addAttributeDescriptions(builder);
         builder.addAttribute(
-                Attribute.createBuilder(SERVER_VENDOR, AttributeType.STRING, "The server vendor")
+                Attribute.createBuilder(JAVA_VENDOR, AttributeType.STRING, "The JVM vendor")
                         .build());
         builder.addAttribute(
-                Attribute.createBuilder(SERVER_VERSION, AttributeType.STRING, "The server version")
+                Attribute.createBuilder(JAVA_VERSION, AttributeType.STRING, "The JVM version")
                         .build());
         builder.addAttribute(
-                Attribute.createBuilder(JAVA_VMS, AttributeType.LIST, "A list of all JVMs on the server")
-                        .setValueType(AttributeType.URL)
-                        .addHandledChildTypes(JvmType.class)
+                Attribute.createBuilder(NODE, AttributeType.STRING, "The node the JVM is running on")
                         .build());
     }
 
     public void setDefaultAttributeValues(ResourceInstance.Builder builder) {
         super.setDefaultAttributeValues(builder);
-        builder.setAttribute(ServerType.SERVER_VENDOR, new ModelNode("Server Co"));
-        builder.setAttribute(ServerType.SERVER_VERSION, new ModelNode("3.7.3"));
+        builder.setAttribute(JAVA_VENDOR, new ModelNode(System.getProperty("java.vendor")));
+        builder.setAttribute(JAVA_VERSION, new ModelNode("java.version"));
+        try {
+            builder.setAttribute(NODE, new ModelNode(InetAddress.getLocalHost().getHostName()));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
-
 }

@@ -42,12 +42,7 @@ public class DomainType extends ManagedObjectType {
     private final List<ManagedObjectType> parents = Collections.emptyList();
 
     private DomainType() {
-        super("JEEDomain", "domain");
-    }
-
-    @Override
-    public String getDescription() {
-        return "The domain is the root concept, and there must be at least one";
+        super("JEEDomain", "domain", "The domain is the root concept, and there must be at least one");
     }
 
     @Override

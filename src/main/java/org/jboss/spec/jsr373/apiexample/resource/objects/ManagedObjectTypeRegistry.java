@@ -40,6 +40,7 @@ class ManagedObjectTypeRegistry {
         addType(instances, DomainType.INSTANCE);
         addType(instances, NullType.INSTANCE);
         addType(instances, ServerType.INSTANCE);
+        addType(instances, JvmType.INSTANCE);
         return instances;
         //This does not work in a server environment since it uses vfs
 //        try {

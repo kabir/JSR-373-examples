@@ -25,6 +25,7 @@ package org.jboss.spec.jsr373.apiexample;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.JvmType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ServerType;
 
 /**
@@ -41,6 +42,7 @@ public class ExampleGenerator {
         //Set up all the templates
         ResourceTemplate domain = ResourceTemplate.createTemplate(urlUtil, DomainType.INSTANCE);
         ResourceTemplate server = ResourceTemplate.createTemplate(urlUtil, ServerType.INSTANCE);
+        ResourceTemplate jvm =  ResourceTemplate.createTemplate(urlUtil, JvmType.INSTANCE);
 
         //Serialize all the templates
         ResourceTemplate.serializeTemplates();
@@ -48,6 +50,7 @@ public class ExampleGenerator {
         //Now create the instances
         ResourceInstance.Builder domainMainBuilder = domain.createRootInstanceBuilder("main");
         ResourceInstance.Builder serverOneBuilder = domainMainBuilder.createChildBuilder(server, "one");
+        ResourceInstance.Builder jvmOneBuilder = serverOneBuilder.createChildBuilder(jvm, "one");
 
 
         //Build and serialize the root instance which will also do the same for the children
