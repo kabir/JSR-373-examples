@@ -34,10 +34,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.jboss.dmr.ModelNode;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ManagedObjectType;
 
@@ -55,7 +56,7 @@ public interface UrlUtil {
     class Factory {
         public static final URL SERVLET_ROOT_URL;
         static {
-            String rootString = System.getProperty("jsr.373.servlet.root", "http://localhost:8080/jsr373example-1.0/contents");
+            String rootString = System.getProperty("jsr.373.servlet.root", "http://localhost:8080/jsr373example/contents");
             if (rootString.endsWith("/")) {
                 rootString.substring(0, rootString.length());
             }
@@ -180,7 +181,7 @@ public interface UrlUtil {
     }
 
     public class ServletUrlRegistry {
-        final Map<URL, String> jsonByUrl = new ConcurrentHashMap<>();
+        final Map<URL, String> jsonByUrl = new LinkedHashMap<>();
 
         private PrintWriter getWriter(final URL url) {
             final StringWriter stringWriter = new StringWriter();
@@ -188,16 +189,30 @@ public interface UrlUtil {
                 @Override
                 public void close() {
                     super.close();
-                    jsonByUrl.put(url, stringWriter.getBuffer().toString());
-                    System.out.println("Adding " + url.toExternalForm() + " to registry");
+                    synchronized (this) {
+                        jsonByUrl.put(url, stringWriter.getBuffer().toString());
+                        System.out.println("Adding " + url.toExternalForm() + " to registry");
+                    }
                 }
             };
         }
 
-        public Reader getReader(URL url) {
+        public synchronized Reader getReader(URL url) {
             String json = jsonByUrl.get(url);
             if (json == null) {
-                return null;
+                //Try the parent
+                String val = url.toExternalForm();
+                ModelNode list = new ModelNode().setEmptyList();
+                for (Map.Entry<URL, String> entry : jsonByUrl.entrySet()) {
+                    String current = entry.getKey().toExternalForm();
+                    current = current.substring(0, current.lastIndexOf('/'));
+
+                    if (current.equals(val)) {
+                        list.add(ModelNode.fromJSONString(entry.getValue()));
+                    }
+                }
+
+                return new StringReader(list.toJSONString(false));
             }
             return new StringReader(json);
         }

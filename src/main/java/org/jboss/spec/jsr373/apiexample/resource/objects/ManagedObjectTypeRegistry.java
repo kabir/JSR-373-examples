@@ -42,42 +42,6 @@ class ManagedObjectTypeRegistry {
         addType(instances, ServerType.INSTANCE);
         addType(instances, JvmType.INSTANCE);
         return instances;
-        //This does not work in a server environment since it uses vfs
-//        try {
-//            Map<Class<? extends ManagedObjectType>, ManagedObjectType> instances = new HashMap<>();
-//            Package pkg = ManagedObjectType.class.getPackage();
-//            URL url = ManagedObjectType.class.getResource(ManagedObjectType.class.getSimpleName() + ".class");
-//            File packageDir = new File(url.toURI()).getParentFile();
-//            for (File file : packageDir.listFiles()) {
-//                String name = file.getName();
-//                int index = name.indexOf(".class");
-//                if (index == -1) {
-//                    continue;
-//                }
-//                name = name.substring(0, index);
-//                Class<?> clazz = Class.forName(pkg.getName() + "." + name);
-//                if ((clazz.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT) {
-//                    continue;
-//                }
-//                boolean inheritsManagedObjectType = false;
-//                Class<?> current = clazz;
-//                while (current != Object.class) {
-//                    if (current == ManagedObjectType.class) {
-//                        inheritsManagedObjectType = true;
-//                        break;
-//                    }
-//                    current = current.getSuperclass();
-//                }
-//                if (inheritsManagedObjectType) {
-//                    Field field = clazz.getDeclaredField("INSTANCE");
-//                    ManagedObjectType type = (ManagedObjectType)field.get(null);
-//                    instances.put((Class<? extends ManagedObjectType>)clazz, type);
-//                }
-//            }
-//            return instances;
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     private static void addType(Map<Class<? extends ManagedObjectType>, ManagedObjectType> instances, ManagedObjectType type) {

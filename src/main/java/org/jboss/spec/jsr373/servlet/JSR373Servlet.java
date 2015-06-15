@@ -43,7 +43,6 @@ public class JSR373Servlet extends HttpServlet {
     private static volatile UrlUtil.ServletUrlRegistry urlRegistry;
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("-- request");
         if (urlRegistry == null) {
             synchronized (this) {
                 if (urlRegistry == null) {
