@@ -78,15 +78,17 @@ public class ResourceInstance {
 
     private void internalSerialize() throws IOException {
         ModelNode output = new ModelNode();
-        addLink(output, "self", url);
-        addLink(output, "help", template.getUrl());
+        ModelNode item = output.get(template.getResourceTypeName());
+        addLink(item, "self", url);
+        addLink(item, "help", template.getUrl());
 
+        item.get("name").set(name);
         for (Map.Entry<String, ModelNode> entry : attributes.entrySet()) {
-            output.get(entry.getKey()).set(entry.getValue());
+            item.get(entry.getKey()).set(entry.getValue());
         }
 
         for (Map.Entry<String, Set<ResourceInstance>> child : children.entrySet()) {
-            ModelNode list = output.get(child.getKey()).setEmptyList();
+            ModelNode list = item.get(child.getKey()).setEmptyList();
             for (ResourceInstance resourceInstance : child.getValue()) {
                 ModelNode link = new ModelNode();
                 link.get("rel").set(resourceInstance.template.getUrl().toExternalForm());
@@ -262,6 +264,10 @@ public class ResourceInstance {
                 default:
                     throw new IllegalStateException("Unknown type " + type);
             }
+        }
+
+        public String getName() {
+            return name;
         }
     }
 

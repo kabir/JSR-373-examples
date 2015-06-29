@@ -35,6 +35,7 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
  */
 public abstract class ManagedObjectType {
+    public static final String NAME = "name";
     public static final String STATE_MANAGEABLE = "stateManageable";
     public static final String STATISTICS_PROVIDER = "statisticsProvider";
     public static final String EVENT_PROVIDER = "eventProvider";
@@ -75,6 +76,9 @@ public abstract class ManagedObjectType {
 
     public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
         builder.addAttribute(
+                Attribute.createBuilder(NAME, AttributeType.STRING, "The name of this " + builder.getType())
+                        .build());
+        builder.addAttribute(
                 Attribute.createBuilder(STATE_MANAGEABLE, AttributeType.BOOLEAN, "Whether the object is state manageable.")
                         .build());
         builder.addAttribute(
@@ -86,6 +90,7 @@ public abstract class ManagedObjectType {
     }
 
     public void setDefaultAttributeValues(ResourceInstance.Builder builder) {
+        builder.setAttribute(NAME, new ModelNode(builder.getName()));
         builder.setAttribute(STATE_MANAGEABLE, new ModelNode(false));
         builder.setAttribute(STATISTICS_PROVIDER, new ModelNode(false));
         builder.setAttribute(EVENT_PROVIDER, new ModelNode(false));

@@ -229,5 +229,9 @@ public class ResourceTemplate {
             return new ResourceTemplate(urlUtil, resourceType, attributes, children);
 
         }
+
+        public String getType() {
+            return resourceType.getName();
+        }
     }
 }
