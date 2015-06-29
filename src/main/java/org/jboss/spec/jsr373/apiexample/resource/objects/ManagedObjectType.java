@@ -96,7 +96,7 @@ public abstract class ManagedObjectType {
         builder.setAttribute(EVENT_PROVIDER, new ModelNode(false));
     }
 
-    public void setTemplate(ResourceTemplate template) {
+    public final void setTemplate(ResourceTemplate template) {
         if (this.template != null) {
             throw new IllegalStateException("Already built a template for " + name);
         }

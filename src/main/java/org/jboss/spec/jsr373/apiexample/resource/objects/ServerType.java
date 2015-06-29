@@ -36,6 +36,7 @@ public class ServerType extends ManagedObjectType {
     public static final String SERVER_VENDOR = "serverVendor";
     public static final String SERVER_VERSION = "serverVersion";
     public static final String JAVA_VMS = "javaVMs";
+    public static final String DEPLOYED_OBJECTS = "deployedObjects";
     public static ManagedObjectType INSTANCE = new ServerType();
 
     private ServerType() {
@@ -60,6 +61,11 @@ public class ServerType extends ManagedObjectType {
                 Attribute.createBuilder(JAVA_VMS, AttributeType.LIST, "A list of all JVMs on the server")
                         .setValueType(AttributeType.URL)
                         .addHandledChildTypes(JvmType.class)
+                        .build());
+        builder.addAttribute(
+                Attribute.createBuilder(DEPLOYED_OBJECTS, AttributeType.LIST, "A list of all JVMs on the server")
+                        .setValueType(AttributeType.URL)
+                        .addHandledChildTypes(AppClientModuleType.class)
                         .build());
     }
 

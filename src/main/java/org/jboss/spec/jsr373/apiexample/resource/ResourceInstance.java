@@ -37,6 +37,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
 import org.jboss.spec.jsr373.apiexample.UrlUtil;
+import org.jboss.spec.jsr373.apiexample.resource.objects.ManagedObjectType;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
@@ -133,6 +134,8 @@ public class ResourceInstance {
         private final Map<String, ModelNode> attributes = new LinkedHashMap<>();
         private final Map<String, Set<Builder>> children = new LinkedHashMap<>();
         private final URL url;
+        private volatile ResourceInstance builtInstance;
+
 
         private Builder(UrlUtil urlUtil, ResourceTemplate template, ResourceInstance.Builder parent, String name) throws IOException, URISyntaxException {
             this.urlUtil = urlUtil;
@@ -153,8 +156,22 @@ public class ResourceInstance {
                 throw new IllegalArgumentException("Bad child type");
             }
             Builder childBuilder = new Builder(urlUtil, template, this, name);
+            addChildBuilder(childBuilder);
 
-            String attributeName = this.template.getAttributeForChildType(template.getResourceType().getClass());
+            return childBuilder;
+        }
+
+        public Builder createManagedObjectChildBuilder(ResourceTemplate template, String name, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
+            if (template.getResourceType() instanceof ManagedObjectType == false) {
+                throw new IllegalArgumentException("Type is not a managed object");
+            }
+            Builder childBuilder = createChildBuilder(template, name);
+            childBuilder.addChildBuilder(jvmBuilder);
+            return childBuilder;
+        }
+
+        private void addChildBuilder(Builder childBuilder) {
+            String attributeName = template.getAttributeForChildType(childBuilder.template.getResourceType().getClass());
             Set<Builder> childBuilders = children.get(attributeName);
             if (childBuilders == null) {
                 childBuilders = new LinkedHashSet<>();
@@ -162,9 +179,7 @@ public class ResourceInstance {
             }
             childBuilders.add(childBuilder);
 
-            return childBuilder;
         }
-
 
         public ResourceInstance build() throws IOException, URISyntaxException {
             if (parent != null) {
@@ -175,6 +190,10 @@ public class ResourceInstance {
 
         private ResourceInstance buildInternal(ResourceInstance parent) throws IOException, URISyntaxException {
 
+            if (builtInstance != null) {
+                parent.addChild(builtInstance);
+                return builtInstance;
+            }
             final Map<String, Attribute> attributeMap = template.getAttributeMap();
             for (String attr : attributes.keySet()) {
                 if (!attributeMap.containsKey(attr)) {
@@ -210,6 +229,8 @@ public class ResourceInstance {
                     child.buildInternal(instance);
                 }
             }
+            builtInstance = instance;
+
             return instance;
         }
 
@@ -268,6 +289,10 @@ public class ResourceInstance {
 
         public String getName() {
             return name;
+        }
+
+        public URL getUrl() {
+            return url;
         }
     }
 

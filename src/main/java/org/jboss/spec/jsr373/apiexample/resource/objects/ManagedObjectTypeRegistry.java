@@ -41,6 +41,7 @@ class ManagedObjectTypeRegistry {
         addType(instances, NullType.INSTANCE);
         addType(instances, ServerType.INSTANCE);
         addType(instances, JvmType.INSTANCE);
+        addType(instances, AppClientModuleType.INSTANCE);
         return instances;
     }
 

@@ -21,8 +21,7 @@
  */
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
@@ -34,44 +33,33 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 /**
  * @author Kabir Khan
  */
-public class JvmType extends ManagedObjectType {
-    public static final String JAVA_VENDOR = "javaVendor";
-    public static final String JAVA_VERSION = "javaVersion";
-    public static final String NODE = "node";
-    public static final JvmType INSTANCE = new JvmType("Identifies a JVM used by a server or a managed object");
+public abstract class DeployedObjectType extends ManagedObjectType {
+    public static final String DEPLOYMENT_DESCRIPTOR = "deploymentDescriptor";
 
+    public static final String SERVER = "server"; //I think this is pointless, there is a direct relation from the parent url
 
-    private JvmType(String description) {
-        super("Jvm", "jvm", description);
-    }
-
-    @Override
-    public Set<ManagedObjectType> getParents() {
-        return parents(NullType.INSTANCE, ServerType.INSTANCE, AppClientModuleType.INSTANCE);
+    protected DeployedObjectType(String name, String path, String description) {
+        super(name, path, description);
     }
 
     @Override
     public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
         super.addAttributeDescriptions(builder);
         builder.addAttribute(
-                Attribute.createBuilder(JAVA_VENDOR, AttributeType.STRING, "The JVM vendor")
-                        .build());
-        builder.addAttribute(
-                Attribute.createBuilder(JAVA_VERSION, AttributeType.STRING, "The JVM version")
-                        .build());
-        builder.addAttribute(
-                Attribute.createBuilder(NODE, AttributeType.STRING, "The node the JVM is running on")
-                        .build());
+                Attribute.createBuilder(DEPLOYMENT_DESCRIPTOR, AttributeType.STRING, "The deployment descriptor used")
+                .build());
     }
 
+    @Override
     public void setDefaultAttributeValues(ResourceInstance.Builder builder) {
         super.setDefaultAttributeValues(builder);
-        builder.setAttribute(JAVA_VENDOR, new ModelNode(System.getProperty("java.vendor")));
-        builder.setAttribute(JAVA_VERSION, new ModelNode("java.version"));
-        try {
-            builder.setAttribute(NODE, new ModelNode(InetAddress.getLocalHost().getHostName()));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        builder.setAttribute(DEPLOYMENT_DESCRIPTOR, new ModelNode("This seems a bit pointless to me? If not we need to flesh out the format"));
+    }
+
+    @Override
+    public Set<ManagedObjectType> getParents() {
+        Set<ManagedObjectType> parents = new HashSet<>();
+        parents.add(ServerType.INSTANCE);
+        return parents;
     }
 }
