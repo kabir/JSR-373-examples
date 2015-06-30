@@ -21,23 +21,38 @@
  */
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
+import java.util.Collections;
 import java.util.Set;
+
+import org.jboss.spec.jsr373.apiexample.resource.Attribute;
+import org.jboss.spec.jsr373.apiexample.resource.AttributeType;
+import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 
 /**
  * @author Kabir Khan
  */
-public class AppClientModuleType extends ModuleType {
+public class ApplicationType extends DeployedObjectType {
 
-    public static final AppClientModuleType INSTANCE = new AppClientModuleType();
+    public static final String MODULES = "modules";
 
-    private AppClientModuleType() {
-        super("AppClientModule", "app-client", "Identifies a deployed Application Client module");
+    public static final ApplicationType INSTANCE = new ApplicationType();
+
+    private ApplicationType() {
+        super("JEEApplication", "application", "Identifies an application EAR that has been deployed");
+    }
+
+    @Override
+    public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
+        super.addAttributeDescriptions(builder);
+        builder.addAttribute(
+                Attribute.createBuilder(MODULES, AttributeType.LIST, "A list of JEE modules comprising this application")
+                        .setValueType(AttributeType.URL)
+                        .addHandledChildTypes(AppClientModuleType.class)
+                        .build());
     }
 
     @Override
     public Set<ManagedObjectType> getParents() {
-        Set<ManagedObjectType> parents = super.getParents();
-        parents.add(ApplicationType.INSTANCE);
-        return parents;
+        return Collections.singleton(ServerType.INSTANCE);
     }
 }

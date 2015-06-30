@@ -25,6 +25,7 @@ package org.jboss.spec.jsr373.apiexample;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 import org.jboss.spec.jsr373.apiexample.resource.objects.AppClientModuleType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.ApplicationType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.JvmType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ServerType;
@@ -44,6 +45,7 @@ public class ExampleGenerator {
         ResourceTemplate domain = ResourceTemplate.createTemplate(urlUtil, DomainType.INSTANCE);
         ResourceTemplate server = ResourceTemplate.createTemplate(urlUtil, ServerType.INSTANCE);
         ResourceTemplate jvm =  ResourceTemplate.createTemplate(urlUtil, JvmType.INSTANCE);
+        ResourceTemplate application = ResourceTemplate.createTemplate(urlUtil, ApplicationType.INSTANCE);
         ResourceTemplate appClient = ResourceTemplate.createTemplate(urlUtil, AppClientModuleType.INSTANCE);
 
         //Serialize all the templates
@@ -53,9 +55,14 @@ public class ExampleGenerator {
         ResourceInstance.Builder domainMainBuilder = domain.createRootInstanceBuilder("main");
         ResourceInstance.Builder serverOneBuilder = domainMainBuilder.createChildBuilder(server, "one");
         ResourceInstance.Builder jvmOneBuilder = serverOneBuilder.createChildBuilder(jvm, "one");
+        ResourceInstance.Builder jvmTwoBuilder = serverOneBuilder.createChildBuilder(jvm, "two");
 
         ResourceInstance.Builder appClientOneTopBuilder =
-                serverOneBuilder.createManagedObjectChildBuilder(appClient, "app-client-top.jar", jvmOneBuilder);
+                serverOneBuilder.createManagedObjectChildBuilder(appClient, "app-client-top-one.jar", jvmOneBuilder);
+
+        ResourceInstance.Builder applicationOneBuilder =
+                serverOneBuilder.createChildBuilder(application, "application-one.ear");
+        applicationOneBuilder.createManagedObjectChildBuilder(appClient, "app-client.jar", jvmTwoBuilder);
 
 
         //Build and serialize the root instance which will also do the same for the children

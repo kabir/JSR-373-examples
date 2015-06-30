@@ -65,7 +65,7 @@ public class ServerType extends ManagedObjectType {
         builder.addAttribute(
                 Attribute.createBuilder(DEPLOYED_OBJECTS, AttributeType.LIST, "A list of all JVMs on the server")
                         .setValueType(AttributeType.URL)
-                        .addHandledChildTypes(AppClientModuleType.class)
+                        .addHandledChildTypes(ApplicationType.class, AppClientModuleType.class)
                         .build());
     }
 

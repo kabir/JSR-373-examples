@@ -41,6 +41,7 @@ class ManagedObjectTypeRegistry {
         addType(instances, NullType.INSTANCE);
         addType(instances, ServerType.INSTANCE);
         addType(instances, JvmType.INSTANCE);
+        addType(instances, ApplicationType.INSTANCE);
         addType(instances, AppClientModuleType.INSTANCE);
         return instances;
     }
@@ -50,6 +51,10 @@ class ManagedObjectTypeRegistry {
     }
 
     public static ManagedObjectType getInstanceForClass(Class<? extends ManagedObjectType> type) {
-        return INSTANCES.get(type);
+        ManagedObjectType instance =  INSTANCES.get(type);
+        if (instance == null) {
+            throw new IllegalArgumentException("Make sure to add " + type.getSimpleName() + " to the registry");
+        }
+        return instance;
     }
 }
