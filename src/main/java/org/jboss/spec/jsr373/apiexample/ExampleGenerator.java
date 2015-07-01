@@ -22,13 +22,23 @@
 
 package org.jboss.spec.jsr373.apiexample;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 import org.jboss.spec.jsr373.apiexample.resource.objects.AppClientModuleType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ApplicationType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.EJBModuleType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.EntityBeanType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.JvmType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.MessageDrivenBeanType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ServerType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.ServletType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.StatefulSessionBeanType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.StatelessSessionBeanType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.WebModuleType;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
@@ -36,17 +46,39 @@ import org.jboss.spec.jsr373.apiexample.resource.objects.ServerType;
 public class ExampleGenerator {
     private final UrlUtil urlUtil;
 
-    public ExampleGenerator(UrlUtil urlUtil) {
+    private final ResourceTemplate domain;
+    private final ResourceTemplate server;
+    private final ResourceTemplate jvm;
+    private final ResourceTemplate application;
+    private final ResourceTemplate appClient;
+    private final ResourceTemplate webModule;
+    private final ResourceTemplate servlet;
+    private final ResourceTemplate ejbModule;
+    private final ResourceTemplate entityBean;
+    private final ResourceTemplate messageDrivenBean;
+    private final ResourceTemplate statefulSessionBean;
+    private final ResourceTemplate statelessSessionBean;
+
+
+
+    public ExampleGenerator(UrlUtil urlUtil) throws IOException {
         this.urlUtil = urlUtil;
+        //Set up all the templates
+        domain = ResourceTemplate.createTemplate(urlUtil, DomainType.INSTANCE);
+        server = ResourceTemplate.createTemplate(urlUtil, ServerType.INSTANCE);
+        jvm =  ResourceTemplate.createTemplate(urlUtil, JvmType.INSTANCE);
+        application = ResourceTemplate.createTemplate(urlUtil, ApplicationType.INSTANCE);
+        appClient = ResourceTemplate.createTemplate(urlUtil, AppClientModuleType.INSTANCE);
+        webModule = ResourceTemplate.createTemplate(urlUtil, WebModuleType.INSTANCE);
+        servlet = ResourceTemplate.createTemplate(urlUtil, ServletType.INSTANCE);
+        ejbModule = ResourceTemplate.createTemplate(urlUtil, EJBModuleType.INSTANCE);
+        entityBean = ResourceTemplate.createTemplate(urlUtil, EntityBeanType.INSTANCE);
+        messageDrivenBean = ResourceTemplate.createTemplate(urlUtil, MessageDrivenBeanType.INSTANCE);
+        statefulSessionBean = ResourceTemplate.createTemplate(urlUtil, StatefulSessionBeanType.INSTANCE);
+        statelessSessionBean = ResourceTemplate.createTemplate(urlUtil, StatelessSessionBeanType.INSTANCE);
     }
 
     public void generate() throws Exception {
-        //Set up all the templates
-        ResourceTemplate domain = ResourceTemplate.createTemplate(urlUtil, DomainType.INSTANCE);
-        ResourceTemplate server = ResourceTemplate.createTemplate(urlUtil, ServerType.INSTANCE);
-        ResourceTemplate jvm =  ResourceTemplate.createTemplate(urlUtil, JvmType.INSTANCE);
-        ResourceTemplate application = ResourceTemplate.createTemplate(urlUtil, ApplicationType.INSTANCE);
-        ResourceTemplate appClient = ResourceTemplate.createTemplate(urlUtil, AppClientModuleType.INSTANCE);
 
         //Serialize all the templates
         ResourceTemplate.serializeTemplates();
@@ -57,16 +89,35 @@ public class ExampleGenerator {
         ResourceInstance.Builder jvmOneBuilder = serverOneBuilder.createChildBuilder(jvm, "one");
         ResourceInstance.Builder jvmTwoBuilder = serverOneBuilder.createChildBuilder(jvm, "two");
 
-        ResourceInstance.Builder appClientOneTopBuilder =
-                serverOneBuilder.createManagedObjectChildBuilder(appClient, "app-client-top-one.jar", jvmOneBuilder);
-
+        //Add some top-level deployments
+        addDeployedObjects(serverOneBuilder, jvmOneBuilder);
+        //Add an ear deployment containing some sub-deployments
         ResourceInstance.Builder applicationOneBuilder =
                 serverOneBuilder.createChildBuilder(application, "application-one.ear");
-        applicationOneBuilder.createManagedObjectChildBuilder(appClient, "app-client.jar", jvmTwoBuilder);
-
+        addDeployedObjects(applicationOneBuilder, jvmOneBuilder);
 
         //Build and serialize the root instance which will also do the same for the children
         ResourceInstance domainMain = domainMainBuilder.build();
         domainMain.serialize();
+    }
+
+    private void addDeployedObjects(ResourceInstance.Builder parentBuilder, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
+        parentBuilder.createManagedObjectChildBuilder(appClient, "app-client.jar", jvmBuilder);
+
+        ResourceInstance.Builder webModuleOneBuilder =
+                parentBuilder.createManagedObjectChildBuilder(webModule, "web-one.war", jvmBuilder);
+        webModuleOneBuilder.createChildBuilder(servlet, "MyServlet");
+        webModuleOneBuilder.createChildBuilder(servlet, "AnotherServlet");
+
+        ResourceInstance.Builder ejbModuleBuilder =
+                parentBuilder.createManagedObjectChildBuilder(ejbModule, "ejb-one.jar", jvmBuilder);
+        ejbModuleBuilder.createChildBuilder(entityBean, "MyEntityBean");
+        ejbModuleBuilder.createChildBuilder(entityBean, "AnotherEntityBean");
+        ejbModuleBuilder.createChildBuilder(messageDrivenBean, "MyMessageDrivenBean");
+        ejbModuleBuilder.createChildBuilder(messageDrivenBean, "AnotherMessageDrivenBean");
+        ejbModuleBuilder.createChildBuilder(statefulSessionBean, "MyStatefulSessionBean");
+        ejbModuleBuilder.createChildBuilder(statefulSessionBean, "AnotherStatefulSessionBean");
+        ejbModuleBuilder.createChildBuilder(statelessSessionBean, "MyStatelessSessionBean");
+        ejbModuleBuilder.createChildBuilder(statelessSessionBean, "AnotherStatelessSessionBean");
     }
 }

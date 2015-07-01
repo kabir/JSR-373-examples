@@ -43,6 +43,13 @@ class ManagedObjectTypeRegistry {
         addType(instances, JvmType.INSTANCE);
         addType(instances, ApplicationType.INSTANCE);
         addType(instances, AppClientModuleType.INSTANCE);
+        addType(instances, WebModuleType.INSTANCE);
+        addType(instances, ServletType.INSTANCE);
+        addType(instances, EJBModuleType.INSTANCE);
+        addType(instances, EntityBeanType.INSTANCE);
+        addType(instances, MessageDrivenBeanType.INSTANCE);
+        addType(instances, StatefulSessionBeanType.INSTANCE);
+        addType(instances, StatelessSessionBeanType.INSTANCE);
         return instances;
     }
 

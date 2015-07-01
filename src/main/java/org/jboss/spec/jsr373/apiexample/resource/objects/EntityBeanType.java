@@ -24,35 +24,18 @@ package org.jboss.spec.jsr373.apiexample.resource.objects;
 import java.util.Collections;
 import java.util.Set;
 
-import org.jboss.spec.jsr373.apiexample.resource.Attribute;
-import org.jboss.spec.jsr373.apiexample.resource.AttributeType;
-import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
-
 /**
  * @author Kabir Khan
  */
-public class ApplicationType extends DeployedObjectType {
+public class EntityBeanType extends ManagedObjectType {
+    public static final EntityBeanType INSTANCE = new EntityBeanType();
 
-    public static final String MODULES = "modules";
-
-    public static final ApplicationType INSTANCE = new ApplicationType();
-
-    private ApplicationType() {
-        super("JEEApplication", "application", "Identifies an application EAR that has been deployed");
-    }
-
-    @Override
-    public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
-        super.addAttributeDescriptions(builder);
-        builder.addAttribute(
-                Attribute.createBuilder(MODULES, AttributeType.LIST, "A list of JEE modules comprising this application")
-                        .setValueType(AttributeType.URL)
-                        .addHandledChildTypes(AppClientModuleType.class, WebModuleType.class, EJBModuleType.class)
-                        .build());
+    private EntityBeanType() {
+        super("EntityBean", "entity-bean", "Identifies an individual entity bean");
     }
 
     @Override
     public Set<ManagedObjectType> getParents() {
-        return Collections.singleton(ServerType.INSTANCE);
+        return Collections.singleton(EJBModuleType.INSTANCE);
     }
 }

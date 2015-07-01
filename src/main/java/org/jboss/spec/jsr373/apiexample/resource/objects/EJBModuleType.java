@@ -21,7 +21,6 @@
  */
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.jboss.spec.jsr373.apiexample.resource.Attribute;
@@ -31,28 +30,32 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 /**
  * @author Kabir Khan
  */
-public class ApplicationType extends DeployedObjectType {
+public class EJBModuleType extends ModuleType {
 
-    public static final String MODULES = "modules";
+    public static final String EJBS = "ejbs";
 
-    public static final ApplicationType INSTANCE = new ApplicationType();
+    public static final EJBModuleType INSTANCE = new EJBModuleType();
 
-    private ApplicationType() {
-        super("JEEApplication", "application", "Identifies an application EAR that has been deployed");
+    private EJBModuleType() {
+        super("EJBModule", "ejb-module", "Identifies a deployed EJB JAR module");
+    }
+
+    @Override
+    public Set<ManagedObjectType> getParents() {
+        Set<ManagedObjectType> parents = super.getParents();
+        parents.add(ApplicationType.INSTANCE);
+        return parents;
     }
 
     @Override
     public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
         super.addAttributeDescriptions(builder);
-        builder.addAttribute(
-                Attribute.createBuilder(MODULES, AttributeType.LIST, "A list of JEE modules comprising this application")
-                        .setValueType(AttributeType.URL)
-                        .addHandledChildTypes(AppClientModuleType.class, WebModuleType.class, EJBModuleType.class)
-                        .build());
-    }
 
-    @Override
-    public Set<ManagedObjectType> getParents() {
-        return Collections.singleton(ServerType.INSTANCE);
+        builder.addAttribute(
+                Attribute.createBuilder(EJBS, AttributeType.LIST, "A list of ejbs contained in this web module")
+                        .setValueType(AttributeType.URL)
+                        .addHandledChildTypes(EntityBeanType.class, MessageDrivenBeanType.class,
+                                StatefulSessionBeanType.class, StatelessSessionBeanType.class)
+                        .build());
     }
 }
