@@ -50,6 +50,8 @@ class ManagedObjectTypeRegistry {
         addType(instances, MessageDrivenBeanType.INSTANCE);
         addType(instances, StatefulSessionBeanType.INSTANCE);
         addType(instances, StatelessSessionBeanType.INSTANCE);
+        addType(instances, JavaMailResourceType.INSTANCE);
+        addType(instances, JndiResourceType.INSTANCE);
         return instances;
     }
 

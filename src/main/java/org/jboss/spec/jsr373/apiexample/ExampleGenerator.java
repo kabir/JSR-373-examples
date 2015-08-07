@@ -32,6 +32,8 @@ import org.jboss.spec.jsr373.apiexample.resource.objects.ApplicationType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.EJBModuleType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.EntityBeanType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.JavaMailResourceType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.JndiResourceType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.JvmType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.MessageDrivenBeanType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ServerType;
@@ -58,6 +60,8 @@ public class ExampleGenerator {
     private final ResourceTemplate messageDrivenBean;
     private final ResourceTemplate statefulSessionBean;
     private final ResourceTemplate statelessSessionBean;
+    private final ResourceTemplate javaMailResource;
+    private final ResourceTemplate jndiResource;
 
 
 
@@ -76,6 +80,8 @@ public class ExampleGenerator {
         messageDrivenBean = ResourceTemplate.createTemplate(urlUtil, MessageDrivenBeanType.INSTANCE);
         statefulSessionBean = ResourceTemplate.createTemplate(urlUtil, StatefulSessionBeanType.INSTANCE);
         statelessSessionBean = ResourceTemplate.createTemplate(urlUtil, StatelessSessionBeanType.INSTANCE);
+        javaMailResource = ResourceTemplate.createTemplate(urlUtil, JavaMailResourceType.INSTANCE);
+        jndiResource = ResourceTemplate.createTemplate(urlUtil, JndiResourceType.INSTANCE);
     }
 
     public void generate() throws Exception {
@@ -91,14 +97,25 @@ public class ExampleGenerator {
 
         //Add some top-level deployments
         addDeployedObjects(serverOneBuilder, jvmOneBuilder);
+
         //Add an ear deployment containing some sub-deployments
         ResourceInstance.Builder applicationOneBuilder =
                 serverOneBuilder.createChildBuilder(application, "application-one.ear");
         addDeployedObjects(applicationOneBuilder, jvmOneBuilder);
 
+
+        //Add the resources to the server
+        serverOneBuilder.createChildBuilder(javaMailResource, "default-mail");
+        serverOneBuilder.createChildBuilder(jndiResource, "space space");
+        serverOneBuilder.createChildBuilder(jndiResource, "java://blah.one");
+        serverOneBuilder.createChildBuilder(jndiResource, "java://blah.two");
+
+
         //Build and serialize the root instance which will also do the same for the children
         ResourceInstance domainMain = domainMainBuilder.build();
         domainMain.serialize();
+
+
     }
 
     private void addDeployedObjects(ResourceInstance.Builder parentBuilder, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
@@ -119,5 +136,7 @@ public class ExampleGenerator {
         ejbModuleBuilder.createChildBuilder(statefulSessionBean, "AnotherStatefulSessionBean");
         ejbModuleBuilder.createChildBuilder(statelessSessionBean, "MyStatelessSessionBean");
         ejbModuleBuilder.createChildBuilder(statelessSessionBean, "AnotherStatelessSessionBean");
+
+        //Skipping Resource Adapters
     }
 }

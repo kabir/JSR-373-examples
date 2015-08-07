@@ -37,6 +37,7 @@ public class ServerType extends ManagedObjectType {
     public static final String SERVER_VERSION = "serverVersion";
     public static final String JAVA_VMS = "javaVMs";
     public static final String DEPLOYED_OBJECTS = "deployedObjects";
+    private static final String RESOURCES = "resources";
     public static ManagedObjectType INSTANCE = new ServerType();
 
     private ServerType() {
@@ -67,6 +68,11 @@ public class ServerType extends ManagedObjectType {
                         .setValueType(AttributeType.URL)
                         .addHandledChildTypes(ApplicationType.class, AppClientModuleType.class,
                                 WebModuleType.class, EJBModuleType.class)
+                        .build());
+        builder.addAttribute(
+                Attribute.createBuilder(RESOURCES, AttributeType.LIST, "A list of all resources available to this server")
+                        .setValueType(AttributeType.URL)
+                        .addHandledChildTypes(JavaMailResourceType.class, JndiResourceType.class)
                         .build());
     }
 

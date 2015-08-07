@@ -79,7 +79,7 @@ public interface UrlUtil {
                 @Override
                 public URL createInstanceUrl(ResourceTemplate template, URL parentUrl, String name) throws IOException, URISyntaxException {
                     final URL parent = parentUrl == null ? root : parentUrl;
-                    return appendURL(parent, template.getResourceType().getPath(), name);
+                    return appendURL(parent, template.getResourceType().getPath(), escape(name));
                 }
 
                 @Override
@@ -143,7 +143,7 @@ public interface UrlUtil {
                         parentFile = outputDirectory;
                     }
                     Path path = Paths.get(parentFile.getAbsolutePath(), template.getResourceType().getPath());
-                    return new File(createDir(path.toFile()), createJsonFileName(name)).toURI().toURL();
+                    return new File(createDir(path.toFile()), createJsonFileName(escape(name))).toURI().toURL();
                 }
 
                 @Override
@@ -177,6 +177,28 @@ public interface UrlUtil {
                     return name.toLowerCase(Locale.ENGLISH) + ".json";
                 }
             };
+        }
+
+        static String escape(String s) {
+            StringBuilder sb = new StringBuilder();
+            char[] chars = s.toCharArray();
+            for (int i = 0; i < s.length(); i++) {
+                final char c = chars[i];
+
+                if (i > 1) { // Windows colon will be here
+                    if (!Character.isLetter(c) && !Character.isDigit(c) &&
+                            c != '$' && c != '$' && c != '-' && c != '.' && c != '+' && c != '*' && c != '\'' &&
+                            c != '(' && c != ')' && c != ',') {
+                        String hex = String.format("%02d", (int) c);
+                        sb.append("&");
+                        sb.append(hex);
+                        //sb.append(";");
+                        continue;
+                    }
+                }
+                sb.append(c);
+            }
+            return sb.toString();
         }
     }
 
