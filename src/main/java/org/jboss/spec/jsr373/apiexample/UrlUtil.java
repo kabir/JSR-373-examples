@@ -49,7 +49,7 @@ public interface UrlUtil {
 
     URL createTemplateUrl(ManagedObjectType resourceType) throws IOException;
 
-    URL createInstanceUrl(ResourceTemplate template, URL parentUrl, String name) throws IOException, URISyntaxException;
+    URL createInstanceUrl(ResourceTemplate template, ManagedObjectType parentType, URL parentUrl, String name) throws IOException, URISyntaxException;
 
     PrintWriter getWriter(URL url) throws IOException ;
 
@@ -77,9 +77,9 @@ public interface UrlUtil {
                 }
 
                 @Override
-                public URL createInstanceUrl(ResourceTemplate template, URL parentUrl, String name) throws IOException, URISyntaxException {
+                public URL createInstanceUrl(ResourceTemplate template, ManagedObjectType parentType, URL parentUrl, String name) throws IOException, URISyntaxException {
                     final URL parent = parentUrl == null ? root : parentUrl;
-                    return appendURL(parent, template.getResourceType().getPath(), name);
+                    return appendURL(parent, template.getResourceType().getPath(parentType), name);
                 }
 
                 @Override
@@ -127,7 +127,7 @@ public interface UrlUtil {
                 }
 
                 @Override
-                public URL createInstanceUrl(ResourceTemplate template, URL parentUrl, String name) throws IOException, URISyntaxException {
+                public URL createInstanceUrl(ResourceTemplate template, ManagedObjectType parentType, URL parentUrl, String name) throws IOException, URISyntaxException {
                     File parentFile;
                     if (parentUrl != null) {
                         parentFile = new File(parentUrl.toURI());
@@ -142,7 +142,7 @@ public interface UrlUtil {
                     } else {
                         parentFile = outputDirectory;
                     }
-                    Path path = Paths.get(parentFile.getAbsolutePath(), template.getResourceType().getPath());
+                    Path path = Paths.get(parentFile.getAbsolutePath(), template.getResourceType().getPath(parentType));
                     return new File(createDir(path.toFile()), createJsonFileName(name)).toURI().toURL();
                 }
 
