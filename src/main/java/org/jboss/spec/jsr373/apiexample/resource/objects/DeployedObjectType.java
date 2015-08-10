@@ -38,8 +38,6 @@ public abstract class DeployedObjectType extends ManagedObjectType {
     public static final String SERVER_ATTR = "deployed-objects";
     public static final String JEE_MODULE_ATTR = "modules";
 
-    public static final String SERVER = "server"; //I think this is pointless, there is a direct relation from the parent url
-
     protected DeployedObjectType(String name, String path, String description) {
         super(name, path, description);
     }
@@ -62,6 +60,7 @@ public abstract class DeployedObjectType extends ManagedObjectType {
     public Set<ManagedObjectType> getParents() {
         Set<ManagedObjectType> parents = new HashSet<>();
         parents.add(ServerType.INSTANCE);
+        parents.add(ApplicationType.INSTANCE);
         return parents;
     }
 }
