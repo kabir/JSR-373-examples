@@ -35,6 +35,8 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  */
 public abstract class DeployedObjectType extends ManagedObjectType {
     public static final String DEPLOYMENT_DESCRIPTOR = "deploymentDescriptor";
+    public static final String SERVER_ATTR = "deployed-objects";
+    public static final String JEE_MODULE_ATTR = "modules";
 
     public static final String SERVER = "server"; //I think this is pointless, there is a direct relation from the parent url
 

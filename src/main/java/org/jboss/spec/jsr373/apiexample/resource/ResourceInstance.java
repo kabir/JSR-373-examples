@@ -138,11 +138,16 @@ public class ResourceInstance {
 
 
         private Builder(UrlUtil urlUtil, ResourceTemplate template, ResourceInstance.Builder parent, String name) throws IOException, URISyntaxException {
+            this(urlUtil, template, null, parent, name);
+        }
+
+        private Builder(UrlUtil urlUtil, ResourceTemplate template, String attributeName, ResourceInstance.Builder parent, String name) throws IOException, URISyntaxException {
             this.urlUtil = urlUtil;
             this.template = template;
             this.parent = parent;
             this.name = name;
-            url = urlUtil.createInstanceUrl(template, parent == null ? null : parent.url, name);
+            String attr = attributeName != null ? attributeName : template.getResourceType().getPath();
+            url = urlUtil.createInstanceUrl(attr, parent == null ? null : parent.url, name);
             template.getResourceType().setDefaultAttributeValues(this);
         }
 
@@ -152,20 +157,25 @@ public class ResourceInstance {
         }
 
         public Builder createChildBuilder(ResourceTemplate template, String name) throws IOException, URISyntaxException {
+            return createChildBuilder(template, null, name);
+        }
+
+        public Builder createChildBuilder(ResourceTemplate template, String attributeName, String name) throws IOException, URISyntaxException {
             if (!template.isValidParent(this.template)) {
                 throw new IllegalArgumentException("Bad child type");
             }
-            Builder childBuilder = new Builder(urlUtil, template, this, name);
+            Builder childBuilder = new Builder(urlUtil, template, attributeName, this, name);
             addChildBuilder(childBuilder);
 
             return childBuilder;
         }
 
-        public Builder createManagedObjectChildBuilder(ResourceTemplate template, String name, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
+
+        public Builder createManagedObjectChildBuilder(ResourceTemplate template, String attributeName, String name, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
             if (template.getResourceType() instanceof ManagedObjectType == false) {
                 throw new IllegalArgumentException("Type is not a managed object");
             }
-            Builder childBuilder = createChildBuilder(template, name);
+            Builder childBuilder = createChildBuilder(template, attributeName, name);
             childBuilder.addChildBuilder(jvmBuilder);
             return childBuilder;
         }

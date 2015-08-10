@@ -29,6 +29,7 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 import org.jboss.spec.jsr373.apiexample.resource.objects.AppClientModuleType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ApplicationType;
+import org.jboss.spec.jsr373.apiexample.resource.objects.DeployedObjectType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.EJBModuleType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.EntityBeanType;
@@ -96,12 +97,12 @@ public class ExampleGenerator {
         ResourceInstance.Builder jvmTwoBuilder = serverOneBuilder.createChildBuilder(jvm, "two");
 
         //Add some top-level deployments
-        addDeployedObjects(serverOneBuilder, jvmOneBuilder);
+        addDeployedObjects(serverOneBuilder, DeployedObjectType.SERVER_ATTR, jvmOneBuilder);
 
         //Add an ear deployment containing some sub-deployments
         ResourceInstance.Builder applicationOneBuilder =
                 serverOneBuilder.createChildBuilder(application, "application-one.ear");
-        addDeployedObjects(applicationOneBuilder, jvmOneBuilder);
+        addDeployedObjects(applicationOneBuilder, DeployedObjectType.JEE_MODULE_ATTR, jvmOneBuilder);
 
 
         //Add the resources to the server
@@ -118,16 +119,16 @@ public class ExampleGenerator {
 
     }
 
-    private void addDeployedObjects(ResourceInstance.Builder parentBuilder, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
-        parentBuilder.createManagedObjectChildBuilder(appClient, "app-client.jar", jvmBuilder);
+    private void addDeployedObjects(ResourceInstance.Builder parentBuilder, String attributeName, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
+        parentBuilder.createManagedObjectChildBuilder(appClient, attributeName, "app-client.jar", jvmBuilder);
 
         ResourceInstance.Builder webModuleOneBuilder =
-                parentBuilder.createManagedObjectChildBuilder(webModule, "web-one.war", jvmBuilder);
+                parentBuilder.createManagedObjectChildBuilder(webModule, attributeName, "web-one.war", jvmBuilder);
         webModuleOneBuilder.createChildBuilder(servlet, "MyServlet");
         webModuleOneBuilder.createChildBuilder(servlet, "AnotherServlet");
 
         ResourceInstance.Builder ejbModuleBuilder =
-                parentBuilder.createManagedObjectChildBuilder(ejbModule, "ejb-one.jar", jvmBuilder);
+                parentBuilder.createManagedObjectChildBuilder(ejbModule, attributeName, "ejb-one.jar", jvmBuilder);
         ejbModuleBuilder.createChildBuilder(entityBean, "MyEntityBean");
         ejbModuleBuilder.createChildBuilder(entityBean, "AnotherEntityBean");
         ejbModuleBuilder.createChildBuilder(messageDrivenBean, "MyMessageDrivenBean");
