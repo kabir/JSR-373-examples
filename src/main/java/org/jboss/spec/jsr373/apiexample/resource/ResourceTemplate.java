@@ -105,7 +105,8 @@ public class ResourceTemplate {
         ModelNode model = new ModelNode();
         addLinks(model);
         model.get("objectType").set(resourceType.getName());
-        model.get("path-element").set(resourceType.getPath());
+        //TODO
+        //model.get("path-element").set(resourceType.getPath());
         model.get("description").set(resourceType.getDescription());
         addParents(model);
         addAttributes(model);
@@ -147,12 +148,16 @@ public class ResourceTemplate {
     private void addHttpMethods(ModelNode modelNode) {
         ModelNode httpMethods = modelNode.get("http-methods");
         ModelNode urlPattern = httpMethods.get("url-pattern");
-        ModelNode local = urlPattern.get("{parent}/" + resourceType.getPath());
+        //TODO
+        ModelNode local = new ModelNode();
+        //ModelNode local = urlPattern.get("{parent}/" + resourceType.getPath());
         ModelNode localGet = local.get("GET");
         localGet.get("description").set("Returns a list of the " + resourceType.getName() + "s under the parent");
         localGet.get("link", "rel").set("help");
         localGet.get("link", "href").set(url.toExternalForm());
-        ModelNode instance = urlPattern.get("{parent}/" + resourceType.getPath() + "/{qualifier}");
+        //TODO
+        ModelNode instance = new ModelNode();
+        //ModelNode instance = urlPattern.get("{parent}/" + resourceType.getPath() + "/{qualifier}");
         ModelNode instanceGet = instance.get("GET");
         instanceGet.get("description").set("Returns a named " + resourceType.getName() + " instance");
         instanceGet.get("link", "rel").set("help");

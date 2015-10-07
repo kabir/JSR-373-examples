@@ -35,8 +35,8 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  * @author Kabir Khan
  */
 public class JvmType extends ManagedObjectType {
-    public static final String JAVA_VENDOR = "javaVendor";
-    public static final String JAVA_VERSION = "javaVersion";
+    public static final String JAVA_VENDOR = "java-vendor";
+    public static final String JAVA_VERSION = "java-version";
     public static final String NODE = "node";
     public static final JvmType INSTANCE = new JvmType("Identifies a JVM used by a server or a managed object");
 

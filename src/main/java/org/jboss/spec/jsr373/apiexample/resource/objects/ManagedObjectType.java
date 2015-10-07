@@ -36,19 +36,19 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  */
 public abstract class ManagedObjectType {
     public static final String NAME = "name";
-    public static final String STATE_MANAGEABLE = "stateManageable";
-    public static final String STATISTICS_PROVIDER = "statisticsProvider";
-    public static final String EVENT_PROVIDER = "eventProvider";
+    public static final String STATE_MANAGEABLE = "state-manageable";
+    public static final String STATISTICS_PROVIDER = "statistics-provider";
+    public static final String EVENT_PROVIDER = "event-provider";
 
     private final String name;
-    private final String path;
+    //private final String path;
     private final String description;
     private ResourceTemplate template;
 
 
     protected ManagedObjectType(String name, String path, String description) {
         this.name = name;
-        this.path = path;
+        //this.path = path;
         this.description = description;
     }
 
@@ -64,9 +64,9 @@ public abstract class ManagedObjectType {
         return description;
     }
 
-    public final String getPath() {
-        return path;
-    }
+//    public final String getPath() {
+//        return path;
+//    }
 
     public abstract Set<ManagedObjectType> getParents();
 

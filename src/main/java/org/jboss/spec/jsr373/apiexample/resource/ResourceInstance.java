@@ -62,7 +62,7 @@ public class ResourceInstance {
     }
 
     static Builder createRootBuilder(UrlUtil urlUtil, ResourceTemplate template, String name) throws IOException, URISyntaxException {
-        Builder builder = new Builder(urlUtil, template, null, name);
+        Builder builder = new Builder(urlUtil, template, name);
         return builder;
     }
 
@@ -137,8 +137,8 @@ public class ResourceInstance {
         private volatile ResourceInstance builtInstance;
 
 
-        private Builder(UrlUtil urlUtil, ResourceTemplate template, ResourceInstance.Builder parent, String name) throws IOException, URISyntaxException {
-            this(urlUtil, template, null, parent, name);
+        private Builder(UrlUtil urlUtil, ResourceTemplate template, String name) throws IOException, URISyntaxException {
+            this(urlUtil, template, "domains", null, name);
         }
 
         private Builder(UrlUtil urlUtil, ResourceTemplate template, String attributeName, ResourceInstance.Builder parent, String name) throws IOException, URISyntaxException {
@@ -146,8 +146,7 @@ public class ResourceInstance {
             this.template = template;
             this.parent = parent;
             this.name = name;
-            String attr = attributeName != null ? attributeName : template.getResourceType().getPath();
-            url = urlUtil.createInstanceUrl(attr, parent == null ? null : parent.url, name);
+            url = urlUtil.createInstanceUrl(attributeName, parent == null ? null : parent.url, name);
             template.getResourceType().setDefaultAttributeValues(this);
         }
 

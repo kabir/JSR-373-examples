@@ -34,7 +34,7 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  * @author Kabir Khan
  */
 public abstract class DeployedObjectType extends ManagedObjectType {
-    public static final String DEPLOYMENT_DESCRIPTOR = "deploymentDescriptor";
+    public static final String DEPLOYMENT_DESCRIPTOR = "deployment-descriptor";
     public static final String SERVER_ATTR = "deployed-objects";
     public static final String JEE_MODULE_ATTR = "modules";
 

@@ -33,11 +33,11 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  * @author Kabir Khan
  */
 public class ServerType extends ManagedObjectType {
-    public static final String SERVER_VENDOR = "serverVendor";
-    public static final String SERVER_VERSION = "serverVersion";
-    public static final String JAVA_VMS = "javaVMs";
-    public static final String DEPLOYED_OBJECTS = "deployedObjects";
-    private static final String RESOURCES = "resources";
+    public static final String SERVER_VENDOR = "server-vendor";
+    public static final String SERVER_VERSION = "server-version";
+    public static final String JAVA_VMS = "java-vms";
+    public static final String DEPLOYED_OBJECTS = "deployed-objects";
+    public static final String RESOURCES = "resources";
     public static ManagedObjectType INSTANCE = new ServerType();
 
     private ServerType() {
