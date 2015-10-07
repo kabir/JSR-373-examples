@@ -29,7 +29,6 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 import org.jboss.spec.jsr373.apiexample.resource.objects.AppClientModuleType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ApplicationType;
-import org.jboss.spec.jsr373.apiexample.resource.objects.DeployedObjectType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.DomainType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.EJBModuleType;
 import org.jboss.spec.jsr373.apiexample.resource.objects.EntityBeanType;
@@ -92,24 +91,24 @@ public class ExampleGenerator {
 
         //Now create the instances
         ResourceInstance.Builder domainMainBuilder = domain.createRootInstanceBuilder("main");
-        ResourceInstance.Builder serverOneBuilder = domainMainBuilder.createChildBuilder(server, DomainType.SERVERS, "one");
-        ResourceInstance.Builder jvmOneBuilder = serverOneBuilder.createChildBuilder(jvm, ServerType.JAVA_VMS, "one");
-        ResourceInstance.Builder jvmTwoBuilder = serverOneBuilder.createChildBuilder(jvm, ServerType.JAVA_VMS, "two");
+        ResourceInstance.Builder serverOneBuilder = domainMainBuilder.createChildBuilder(server, "one");
+        ResourceInstance.Builder jvmOneBuilder = serverOneBuilder.createChildBuilder(jvm, "one");
+        ResourceInstance.Builder jvmTwoBuilder = serverOneBuilder.createChildBuilder(jvm, "two");
 
         //Add some top-level deployments
-        addDeployedObjects(serverOneBuilder, DeployedObjectType.SERVER_ATTR, jvmOneBuilder);
+        addDeployedObjects(serverOneBuilder, jvmOneBuilder);
 
         //Add an ear deployment containing some sub-deployments
         ResourceInstance.Builder applicationOneBuilder =
-                serverOneBuilder.createChildBuilder(application, ServerType.DEPLOYED_OBJECTS, "application-one.ear");
-        addDeployedObjects(applicationOneBuilder, DeployedObjectType.JEE_MODULE_ATTR, jvmOneBuilder);
+                serverOneBuilder.createChildBuilder(application, "application-one.ear");
+        addDeployedObjects(applicationOneBuilder, jvmOneBuilder);
 
 
         //Add the resources to the server
-        serverOneBuilder.createChildBuilder(javaMailResource, ServerType.RESOURCES, "default-mail");
-        serverOneBuilder.createChildBuilder(jndiResource, ServerType.RESOURCES, "space space");
-        serverOneBuilder.createChildBuilder(jndiResource, ServerType.RESOURCES, "java://blah.one");
-        serverOneBuilder.createChildBuilder(jndiResource, ServerType.RESOURCES, "java://blah.two");
+        serverOneBuilder.createChildBuilder(javaMailResource, "default-mail");
+        serverOneBuilder.createChildBuilder(jndiResource, "space space");
+        serverOneBuilder.createChildBuilder(jndiResource, "java://blah.one");
+        serverOneBuilder.createChildBuilder(jndiResource, "java://blah.two");
 
 
         //Build and serialize the root instance which will also do the same for the children
@@ -119,24 +118,24 @@ public class ExampleGenerator {
 
     }
 
-    private void addDeployedObjects(ResourceInstance.Builder parentBuilder, String attributeName, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
-        parentBuilder.createManagedObjectChildBuilder(appClient, attributeName, "app-client.jar", jvmBuilder);
+    private void addDeployedObjects(ResourceInstance.Builder parentBuilder, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
+        parentBuilder.createManagedObjectChildBuilder(appClient, "app-client.jar", jvmBuilder);
 
         ResourceInstance.Builder webModuleOneBuilder =
-                parentBuilder.createManagedObjectChildBuilder(webModule, attributeName, "web-one.war", jvmBuilder);
-        webModuleOneBuilder.createChildBuilder(servlet, WebModuleType.SERVLETS, "MyServlet");
-        webModuleOneBuilder.createChildBuilder(servlet, WebModuleType.SERVLETS, "AnotherServlet");
+                parentBuilder.createManagedObjectChildBuilder(webModule, "web-one.war", jvmBuilder);
+        webModuleOneBuilder.createChildBuilder(servlet, "MyServlet");
+        webModuleOneBuilder.createChildBuilder(servlet, "AnotherServlet");
 
         ResourceInstance.Builder ejbModuleBuilder =
-                parentBuilder.createManagedObjectChildBuilder(ejbModule, attributeName, "ejb-one.jar", jvmBuilder);
-        ejbModuleBuilder.createChildBuilder(entityBean, EJBModuleType.EJBS, "MyEntityBean");
-        ejbModuleBuilder.createChildBuilder(entityBean, EJBModuleType.EJBS, "AnotherEntityBean");
-        ejbModuleBuilder.createChildBuilder(messageDrivenBean, EJBModuleType.EJBS, "MyMessageDrivenBean");
-        ejbModuleBuilder.createChildBuilder(messageDrivenBean, EJBModuleType.EJBS, "AnotherMessageDrivenBean");
-        ejbModuleBuilder.createChildBuilder(statefulSessionBean, EJBModuleType.EJBS, "MyStatefulSessionBean");
-        ejbModuleBuilder.createChildBuilder(statefulSessionBean, EJBModuleType.EJBS, "AnotherStatefulSessionBean");
-        ejbModuleBuilder.createChildBuilder(statelessSessionBean, EJBModuleType.EJBS, "MyStatelessSessionBean");
-        ejbModuleBuilder.createChildBuilder(statelessSessionBean, EJBModuleType.EJBS, "AnotherStatelessSessionBean");
+                parentBuilder.createManagedObjectChildBuilder(ejbModule, "ejb-one.jar", jvmBuilder);
+        ejbModuleBuilder.createChildBuilder(entityBean, "MyEntityBean");
+        ejbModuleBuilder.createChildBuilder(entityBean, "AnotherEntityBean");
+        ejbModuleBuilder.createChildBuilder(messageDrivenBean, "MyMessageDrivenBean");
+        ejbModuleBuilder.createChildBuilder(messageDrivenBean, "AnotherMessageDrivenBean");
+        ejbModuleBuilder.createChildBuilder(statefulSessionBean, "MyStatefulSessionBean");
+        ejbModuleBuilder.createChildBuilder(statefulSessionBean, "AnotherStatefulSessionBean");
+        ejbModuleBuilder.createChildBuilder(statelessSessionBean, "MyStatelessSessionBean");
+        ejbModuleBuilder.createChildBuilder(statelessSessionBean, "AnotherStatelessSessionBean");
 
         //Skipping Resource Adapters
     }

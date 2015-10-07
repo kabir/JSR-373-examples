@@ -156,13 +156,10 @@ public class ResourceInstance {
         }
 
         public Builder createChildBuilder(ResourceTemplate template, String name) throws IOException, URISyntaxException {
-            return createChildBuilder(template, null, name);
-        }
-
-        public Builder createChildBuilder(ResourceTemplate template, String attributeName, String name) throws IOException, URISyntaxException {
             if (!template.isValidParent(this.template)) {
                 throw new IllegalArgumentException("Bad child type");
             }
+            String attributeName =  this.template.getAttributeForChildType(template.getResourceType().getClass());
             Builder childBuilder = new Builder(urlUtil, template, attributeName, this, name);
             addChildBuilder(childBuilder);
 
@@ -170,11 +167,11 @@ public class ResourceInstance {
         }
 
 
-        public Builder createManagedObjectChildBuilder(ResourceTemplate template, String attributeName, String name, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
+        public Builder createManagedObjectChildBuilder(ResourceTemplate template, String name, ResourceInstance.Builder jvmBuilder) throws IOException, URISyntaxException {
             if (template.getResourceType() instanceof ManagedObjectType == false) {
                 throw new IllegalArgumentException("Type is not a managed object");
             }
-            Builder childBuilder = createChildBuilder(template, attributeName, name);
+            Builder childBuilder = createChildBuilder(template, name);
             childBuilder.addChildBuilder(jvmBuilder);
             return childBuilder;
         }
