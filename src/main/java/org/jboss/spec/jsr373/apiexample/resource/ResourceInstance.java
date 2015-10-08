@@ -180,6 +180,9 @@ public class ResourceInstance {
         }
 
         private void addChildBuilder(Builder childBuilder) {
+            if (!childBuilder.template.isValidParent(template)) {
+                throw new IllegalArgumentException("Bad child type");
+            }
             String attributeName = template.getAttributeForChildType(childBuilder.template.getResourceType().getClass());
             Set<Builder> childBuilders = children.get(attributeName);
             if (childBuilders == null) {

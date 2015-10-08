@@ -48,7 +48,7 @@ public class JvmType extends ManagedObjectType {
 
     @Override
     public Set<ManagedObjectType> getParents() {
-        return parents(ServerType.INSTANCE, AppClientModuleType.INSTANCE);
+        return parents(ServerType.INSTANCE, AppClientModuleType.INSTANCE, EJBModuleType.INSTANCE, WebModuleType.INSTANCE);
     }
 
     @Override
