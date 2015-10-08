@@ -68,6 +68,10 @@ public abstract class ManagedObjectType {
 
     public abstract Set<ManagedObjectType> getParents();
 
+    public Set<ManagedObjectType> getParentsForUriTemplate() {
+        return getParents();
+    }
+
     public ResourceTemplate getTemplate() {
         return template;
     }

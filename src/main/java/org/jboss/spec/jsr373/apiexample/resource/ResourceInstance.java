@@ -171,6 +171,9 @@ public class ResourceInstance {
             if (template.getResourceType() instanceof ManagedObjectType == false) {
                 throw new IllegalArgumentException("Type is not a managed object");
             }
+            if (!template.isValidParent(this.template)) {
+                throw new IllegalArgumentException("Bad child type");
+            }
             Builder childBuilder = createChildBuilder(template, name);
             childBuilder.addChildBuilder(jvmBuilder);
             return childBuilder;

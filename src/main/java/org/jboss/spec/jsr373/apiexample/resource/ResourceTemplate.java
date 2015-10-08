@@ -211,7 +211,7 @@ public class ResourceTemplate {
     private List<String> getAllUrlPatterns() {
         List<List<ResourceTemplate>> parents = new ArrayList<>();
         parents.add(new ArrayList<>());
-        getAllParentTypes(parents);
+        getAllParentTypesForUrlPattern(parents);
 
         List<String> result = new ArrayList<>(parents.size());
         for (List<ResourceTemplate> parentList : parents) {
@@ -245,8 +245,8 @@ public class ResourceTemplate {
         return s;
     }
 
-    private void getAllParentTypes(List<List<ResourceTemplate>> parents) {
-        Set<ManagedObjectType> parentTypes = resourceType.getParents();
+    private void getAllParentTypesForUrlPattern(List<List<ResourceTemplate>> parents) {
+        Set<ManagedObjectType> parentTypes = resourceType.getParentsForUriTemplate();
         Map<ManagedObjectType, List<List<ResourceTemplate>>> parentsMap = new LinkedHashMap<>();
         boolean first = true;
         for (ManagedObjectType parent : parentTypes) {
@@ -266,7 +266,7 @@ public class ResourceTemplate {
 
             if (entry.getKey() != NullType.INSTANCE) {
                 ResourceTemplate parent = entry.getKey().getTemplate();
-                parent.getAllParentTypes(parentList);
+                parent.getAllParentTypesForUrlPattern(parentList);
             }
             parentList.forEach(list -> list.add(this));
         }
@@ -283,27 +283,6 @@ public class ResourceTemplate {
             }
         }
     }
-
-
-//    public List<List<String>> getUrlTemplate(ResourceTemplate child) {
-//
-//        List<List<String>> result = new ArrayList<>();
-//        for (ManagedObjectType parent : resourceType.getParents()) {
-//            if (parent == NullType.INSTANCE && resourceType.getRootName() != null) {
-//                List<String> root = new ArrayList<>();
-//                result.add(root);
-//                root.add(resourceType.getRootName());
-//            } else {
-//                List<List<String>> parents = parent.getTemplate().getUrlTemplate(this);
-//                for (List<String> p : parents) {
-//                    result.add(p);
-//                    String attributeName = parent.getTemplate().getAttributeForChildType(child.getResourceType().getClass());
-//                    p.add(attributeName);
-//                }
-//            }
-//        }
-//        return result;
-//    }
 
     @Override
     public String toString() {

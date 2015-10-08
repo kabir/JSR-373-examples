@@ -32,6 +32,7 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceInstance;
 import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
 
 /**
+ * TODO Jvms are a bit funny since they are currently registered under servers, but referenced under e.g. deployed-objects
  * @author Kabir Khan
  */
 public class JvmType extends ManagedObjectType {
@@ -48,6 +49,11 @@ public class JvmType extends ManagedObjectType {
     @Override
     public Set<ManagedObjectType> getParents() {
         return parents(ServerType.INSTANCE, AppClientModuleType.INSTANCE);
+    }
+
+    @Override
+    public Set<ManagedObjectType> getParentsForUriTemplate() {
+        return parents(ServerType.INSTANCE);
     }
 
     @Override
