@@ -105,8 +105,6 @@ public class ResourceTemplate {
         ModelNode model = new ModelNode();
         addLinks(model);
         model.get("objectType").set(resourceType.getName());
-        //TODO
-        //model.get("path-element").set(resourceType.getPath());
         model.get("description").set(resourceType.getDescription());
         addParents(model);
         addAttributes(model);
@@ -146,22 +144,30 @@ public class ResourceTemplate {
     }
 
     private void addHttpMethods(ModelNode modelNode) {
+        final List<String> urlPatterns = getAllUrlPatterns();
+
         ModelNode httpMethods = modelNode.get("http-methods");
-        ModelNode urlPattern = httpMethods.get("url-pattern");
-        //TODO
-        ModelNode local = new ModelNode();
-        //ModelNode local = urlPattern.get("{parent}/" + resourceType.getPath());
-        ModelNode localGet = local.get("GET");
-        localGet.get("description").set("Returns a list of the " + resourceType.getName() + "s under the parent");
-        localGet.get("link", "rel").set("help");
-        localGet.get("link", "href").set(url.toExternalForm());
-        //TODO
-        ModelNode instance = new ModelNode();
-        //ModelNode instance = urlPattern.get("{parent}/" + resourceType.getPath() + "/{qualifier}");
-        ModelNode instanceGet = instance.get("GET");
-        instanceGet.get("description").set("Returns a named " + resourceType.getName() + " instance");
-        instanceGet.get("link", "rel").set("help");
-        instanceGet.get("link", "href").set(url.toExternalForm());
+        ModelNode get = httpMethods.get("GET");
+
+        ModelNode singleRecord = new ModelNode();
+        ModelNode singleUrlPatterns = singleRecord.get("url-patterns");
+        for (String pattern : urlPatterns) {
+            singleUrlPatterns.add(pattern);
+        }
+        singleRecord.get("description").set("Returns a named " + resourceType.getName() + " instance");
+        singleRecord.get("link", "rel").set("help");
+        singleRecord.get("link", "href").set(url.toExternalForm());
+        get.add(singleRecord);
+
+        ModelNode collectionRecord = new ModelNode();
+        ModelNode collectionUrlPatterns = collectionRecord.get("url-patterns");
+        for (String pattern : urlPatterns) {
+            collectionUrlPatterns.add(pattern.substring(0, pattern.lastIndexOf("/")));
+        }
+        collectionRecord.get("description").set("Returns a list of the " + resourceType.getName() + "s under the parent");
+        collectionRecord.get("link", "rel").set("help");
+        collectionRecord.get("link", "href").set(url.toExternalForm());
+        get.add(collectionRecord);
     }
 
     public ResourceInstance.Builder createRootInstanceBuilder(String name) throws IOException, URISyntaxException {
@@ -202,6 +208,108 @@ public class ResourceTemplate {
         }
     }
 
+    private List<String> getAllUrlPatterns() {
+        List<List<ResourceTemplate>> parents = new ArrayList<>();
+        parents.add(new ArrayList<>());
+        getAllParentTypes(parents);
+
+        List<String> result = new ArrayList<>(parents.size());
+        for (List<ResourceTemplate> parentList : parents) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < parentList.size(); i++) {
+                ResourceTemplate template = parentList.get(i);
+                if (i == 0) {
+                    String rootName = template.getResourceType().getRootName();
+                    assert rootName != null;
+                    sb.append("/");
+                    sb.append(rootName);
+                    sb.append("/{" + createId(rootName) + "-id}");
+                } else {
+                    ResourceTemplate parent = parentList.get(i - 1);
+                    sb.append("/");
+                    String attribute = parent.getAttributeForChildType(template.getResourceType().getClass());
+                    sb.append(attribute);
+                    sb.append("/{" + createId(attribute) + "-id}");
+                }
+            }
+            result.add(sb.toString());
+        }
+
+        return result;
+    }
+
+    String createId(String s) {
+        if (s.endsWith("s")) {
+            return s.substring(0, s.length() - 1);
+        }
+        return s;
+    }
+
+    private void getAllParentTypes(List<List<ResourceTemplate>> parents) {
+        Set<ManagedObjectType> parentTypes = resourceType.getParents();
+        Map<ManagedObjectType, List<List<ResourceTemplate>>> parentsMap = new LinkedHashMap<>();
+        boolean first = true;
+        for (ManagedObjectType parent : parentTypes) {
+            if (first) {
+                parentsMap.put(parent, parents);
+                first = false;
+            } else {
+                //We need to branch
+                List<List<ResourceTemplate>> branch = new ArrayList<>();
+                parents.forEach(list -> branch.add(new ArrayList<>(list)));
+                parentsMap.put(parent, branch);
+            }
+        }
+
+        for (Map.Entry<ManagedObjectType, List<List<ResourceTemplate>>> entry : parentsMap.entrySet()) {
+            List<List<ResourceTemplate>> parentList = entry.getValue();
+
+            if (entry.getKey() != NullType.INSTANCE) {
+                ResourceTemplate parent = entry.getKey().getTemplate();
+                parent.getAllParentTypes(parentList);
+            }
+            parentList.forEach(list -> list.add(this));
+        }
+
+        if (parentTypes.size() > 0) {
+            //The first entry in the list is up to date, add the other ones
+            first = true;
+            for (List<List<ResourceTemplate>> listForParent : parentsMap.values()) {
+                if (first) {
+                    first = false;
+                    continue;
+                }
+                listForParent.forEach(list -> parents.add(list));
+            }
+        }
+    }
+
+
+//    public List<List<String>> getUrlTemplate(ResourceTemplate child) {
+//
+//        List<List<String>> result = new ArrayList<>();
+//        for (ManagedObjectType parent : resourceType.getParents()) {
+//            if (parent == NullType.INSTANCE && resourceType.getRootName() != null) {
+//                List<String> root = new ArrayList<>();
+//                result.add(root);
+//                root.add(resourceType.getRootName());
+//            } else {
+//                List<List<String>> parents = parent.getTemplate().getUrlTemplate(this);
+//                for (List<String> p : parents) {
+//                    result.add(p);
+//                    String attributeName = parent.getTemplate().getAttributeForChildType(child.getResourceType().getClass());
+//                    p.add(attributeName);
+//                }
+//            }
+//        }
+//        return result;
+//    }
+
+    @Override
+    public String toString() {
+        return "ResourceTemplate(" + resourceType + ")";
+    }
+
     public static class Builder {
         private final UrlUtil urlUtil;
         private final ManagedObjectType resourceType;
@@ -239,4 +347,6 @@ public class ResourceTemplate {
             return resourceType.getName();
         }
     }
+
+
 }

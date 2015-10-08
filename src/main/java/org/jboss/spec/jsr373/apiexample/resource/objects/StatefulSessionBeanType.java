@@ -31,7 +31,7 @@ public class StatefulSessionBeanType extends ManagedObjectType {
     public static final StatefulSessionBeanType INSTANCE = new StatefulSessionBeanType();
 
     private StatefulSessionBeanType() {
-        super("StatefulSessionBean", "stateful-session-bean", "Identifies an individual stateful session bean");
+        super("StatefulSessionBean", "Identifies an individual stateful session bean", null);
     }
 
     @Override

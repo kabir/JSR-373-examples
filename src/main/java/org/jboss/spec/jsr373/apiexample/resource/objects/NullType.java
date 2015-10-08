@@ -31,7 +31,7 @@ public class NullType extends ManagedObjectType {
     public static ManagedObjectType INSTANCE = new NullType();
 
     private NullType() {
-        super("", "", "");
+        super("", "", null);
     }
 
     @Override

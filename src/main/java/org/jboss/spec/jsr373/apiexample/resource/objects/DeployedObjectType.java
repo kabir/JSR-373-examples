@@ -21,7 +21,6 @@
  */
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
@@ -39,7 +38,7 @@ public abstract class DeployedObjectType extends ManagedObjectType {
     public static final String JEE_MODULE_ATTR = "modules";
 
     protected DeployedObjectType(String name, String path, String description) {
-        super(name, path, description);
+        super(name, description, null);
     }
 
     @Override
@@ -58,9 +57,7 @@ public abstract class DeployedObjectType extends ManagedObjectType {
 
     @Override
     public Set<ManagedObjectType> getParents() {
-        Set<ManagedObjectType> parents = new HashSet<>();
-        parents.add(ServerType.INSTANCE);
-        parents.add(ApplicationType.INSTANCE);
+        Set<ManagedObjectType> parents = parents(ServerType.INSTANCE, ApplicationType.INSTANCE);
         return parents;
     }
 }

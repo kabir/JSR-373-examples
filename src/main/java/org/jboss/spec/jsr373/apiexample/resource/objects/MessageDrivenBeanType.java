@@ -31,7 +31,7 @@ public class MessageDrivenBeanType extends ManagedObjectType {
     public static final MessageDrivenBeanType INSTANCE = new MessageDrivenBeanType();
 
     private MessageDrivenBeanType() {
-        super("MessageDrivenBean", "message-driven-bean", "Identifies an individual message-driven bean");
+        super("MessageDrivenBean", "Identifies an individual message-driven bean", null);
     }
 
     @Override

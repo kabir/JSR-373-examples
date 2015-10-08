@@ -42,12 +42,12 @@ public class JvmType extends ManagedObjectType {
 
 
     private JvmType(String description) {
-        super("Jvm", "jvm", description);
+        super("Jvm", description, null);
     }
 
     @Override
     public Set<ManagedObjectType> getParents() {
-        return parents(NullType.INSTANCE, ServerType.INSTANCE, AppClientModuleType.INSTANCE);
+        return parents(ServerType.INSTANCE, AppClientModuleType.INSTANCE);
     }
 
     @Override

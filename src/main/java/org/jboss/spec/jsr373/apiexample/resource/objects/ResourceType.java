@@ -30,7 +30,7 @@ import java.util.Set;
 public abstract class ResourceType extends ManagedObjectType {
 
     protected ResourceType(String name, String path, String description) {
-        super(name, path, description);
+        super(name, description, null);
     }
 
     @Override

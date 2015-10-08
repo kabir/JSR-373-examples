@@ -22,7 +22,7 @@
 
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
@@ -41,15 +41,16 @@ public abstract class ManagedObjectType {
     public static final String EVENT_PROVIDER = "event-provider";
 
     private final String name;
-    //private final String path;
     private final String description;
     private ResourceTemplate template;
+    /** The name of this if it is a root object with noone */
+    private final String rootName;
 
 
-    protected ManagedObjectType(String name, String path, String description) {
+    protected ManagedObjectType(String name, String description, String rootName) {
         this.name = name;
-        //this.path = path;
         this.description = description;
+        this.rootName = rootName;
     }
 
     public static ManagedObjectType getInstanceForClass(Class<? extends ManagedObjectType> type) {
@@ -64,14 +65,15 @@ public abstract class ManagedObjectType {
         return description;
     }
 
-//    public final String getPath() {
-//        return path;
-//    }
 
     public abstract Set<ManagedObjectType> getParents();
 
     public ResourceTemplate getTemplate() {
         return template;
+    }
+
+    public String getRootName() {
+        return rootName;
     }
 
     public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
@@ -104,12 +106,26 @@ public abstract class ManagedObjectType {
     }
 
     static Set<ManagedObjectType> parents(ManagedObjectType...parents) {
-        Set<ManagedObjectType> set = new HashSet<>();
+        Set<ManagedObjectType> set = new LinkedHashSet<>();
         for (ManagedObjectType parent : parents) {
             set.add(parent);
         }
         return set;
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof ManagedObjectType == false) {
+            return false;
+        }
+        return name.equals(((ManagedObjectType)obj).name);
+    }
 }

@@ -31,7 +31,7 @@ public class EntityBeanType extends ManagedObjectType {
     public static final EntityBeanType INSTANCE = new EntityBeanType();
 
     private EntityBeanType() {
-        super("EntityBean", "entity-bean", "Identifies an individual entity bean");
+        super("EntityBean", "Identifies an individual entity bean", null);
     }
 
     @Override

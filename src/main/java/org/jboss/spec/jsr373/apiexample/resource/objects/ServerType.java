@@ -41,7 +41,7 @@ public class ServerType extends ManagedObjectType {
     public static ManagedObjectType INSTANCE = new ServerType();
 
     private ServerType() {
-        super("JEEServer", "server", "Represents a Java EE server");
+        super("JEEServer", "Represents a Java EE server", DomainType.SERVERS);
     }
 
     @Override

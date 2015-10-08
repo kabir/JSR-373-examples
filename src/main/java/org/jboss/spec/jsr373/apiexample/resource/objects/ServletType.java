@@ -31,7 +31,7 @@ public class ServletType extends ManagedObjectType {
     public static final ServletType INSTANCE = new ServletType();
 
     private ServletType() {
-        super("Servlet", "servlet", "Identifies a deployed servlet component");
+        super("Servlet", "Identifies a deployed servlet component", null);
     }
 
     @Override
