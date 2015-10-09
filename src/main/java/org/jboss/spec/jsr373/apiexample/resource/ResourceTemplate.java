@@ -149,25 +149,44 @@ public class ResourceTemplate {
         ModelNode httpMethods = modelNode.get("http-methods");
         ModelNode get = httpMethods.get("GET");
 
-        ModelNode singleRecord = new ModelNode();
-        ModelNode singleUrlPatterns = singleRecord.get("url-patterns");
-        for (String pattern : urlPatterns) {
-            singleUrlPatterns.add(pattern);
-        }
-        singleRecord.get("description").set("Returns a named " + resourceType.getName() + " instance");
-        singleRecord.get("link", "rel").set("help");
-        singleRecord.get("link", "href").set(url.toExternalForm());
-        get.add(singleRecord);
+        get.add(createOperation(urlPatterns, "Returns a named " + resourceType.getName() + " instance", url,
+                null));
+        get.add(createOperation(urlPatterns, "Returns a list of the " + resourceType.getName() + "s under the parent", url,
+                pattern -> pattern.substring(0, pattern.lastIndexOf("/"))));
 
-        ModelNode collectionRecord = new ModelNode();
-        ModelNode collectionUrlPatterns = collectionRecord.get("url-patterns");
-        for (String pattern : urlPatterns) {
-            collectionUrlPatterns.add(pattern.substring(0, pattern.lastIndexOf("/")));
+        addPostOperations(httpMethods, urlPatterns);
+    }
+
+    private void addPostOperations(ModelNode httpMethods, List<String> urlPatterns) {
+        ModelNode post = httpMethods.get("POST");
+        for (ModelNode op : getStateManageableOperations(urlPatterns)) {
+            post.add(op);
         }
-        collectionRecord.get("description").set("Returns a list of the " + resourceType.getName() + "s under the parent");
-        collectionRecord.get("link", "rel").set("help");
-        collectionRecord.get("link", "href").set(url.toExternalForm());
-        get.add(collectionRecord);
+        //TODO Event Provider
+        //TODO Performance Monitor
+        return;
+    }
+    private List<ModelNode> getStateManageableOperations(List<String> urlPatterns) {
+        List<ModelNode> ops = new ArrayList<>();
+        ops.add(createOperation(urlPatterns, "Starts this " + resourceType.getName() + ".", null,
+                pattern -> pattern + "/operations/start"));
+        ops.add(createOperation(urlPatterns, "Starts this " + resourceType.getName() + " and all its children.", null,
+                pattern -> pattern + "/operations/start-recursive"));
+        ops.add(createOperation(urlPatterns, "Stops this " + resourceType.getName() + " and all its children.", null,
+                pattern -> pattern + "/operations/stop"));
+        return ops;
+    }
+
+    private ModelNode createOperation(List<String> urlPatterns, String description, URL help, URLPatternDecorator patternDecorator) {
+        ModelNode op = new ModelNode();
+        ModelNode patterns = op.get("url-patterns");
+        urlPatterns.forEach(s -> patterns.add(patternDecorator == null ? s : patternDecorator.decorate(s)));
+        op.get("description").set(description);
+        if (help != null) {
+            op.get("link", "rel").set("help");
+            op.get("link", "href").set(url.toExternalForm());
+        }
+        return op;
     }
 
     public ResourceInstance.Builder createRootInstanceBuilder(String name) throws IOException, URISyntaxException {
@@ -327,5 +346,8 @@ public class ResourceTemplate {
         }
     }
 
-
+    @FunctionalInterface
+    interface URLPatternDecorator {
+        String decorate(String pattern);
+    }
 }

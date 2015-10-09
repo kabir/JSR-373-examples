@@ -36,9 +36,15 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  */
 public abstract class ManagedObjectType {
     public static final String NAME = "name";
+
+    //ManagedObject attributes
     public static final String STATE_MANAGEABLE = "state-manageable";
     public static final String STATISTICS_PROVIDER = "statistics-provider";
     public static final String EVENT_PROVIDER = "event-provider";
+
+    //StateManageable attributes
+    public static final String STATE = "state";
+    public static final String START_TIME = "start-time";
 
     private final String name;
     private final String description;
@@ -81,6 +87,7 @@ public abstract class ManagedObjectType {
     }
 
     public void addAttributeDescriptions(ResourceTemplate.Builder builder) {
+        //ManagedObject attributes
         builder.addAttribute(
                 Attribute.createBuilder(NAME, AttributeType.STRING, "The name of this " + builder.getType())
                         .build());
@@ -92,6 +99,16 @@ public abstract class ManagedObjectType {
                         .build());
         builder.addAttribute(
                 Attribute.createBuilder(EVENT_PROVIDER, AttributeType.BOOLEAN, "Whether the object is state manageable.")
+                        .build());
+
+        //StateManageable attributes
+        builder.addAttribute(
+                Attribute.createBuilder(STATE, AttributeType.STRING, "The state of the managed object. Will only be available if state-manageable=true. ")
+                        .setNillable()
+                        .build());
+        builder.addAttribute(
+                Attribute.createBuilder(START_TIME, AttributeType.LONG, "The start time of the managed object in milliseconds since January 1, 1970, 00:00:00. Will only be available if state-manageable=true.")
+                        .setNillable()
                         .build());
     }
 
