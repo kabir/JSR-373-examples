@@ -22,6 +22,7 @@
 
 package org.jboss.spec.jsr373.apiexample.resource.objects;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -128,9 +129,7 @@ public abstract class ManagedObjectType {
 
     static Set<ManagedObjectType> parents(ManagedObjectType...parents) {
         Set<ManagedObjectType> set = new LinkedHashSet<>();
-        for (ManagedObjectType parent : parents) {
-            set.add(parent);
-        }
+        Arrays.asList(parents).forEach(parent -> set.add(parent));
         return set;
     }
 

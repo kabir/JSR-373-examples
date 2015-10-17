@@ -104,7 +104,7 @@ public class ResourceTemplate {
 
         ModelNode model = new ModelNode();
         addLinks(model);
-        model.get("objectType").set(resourceType.getName());
+        model.get("object-type").set(resourceType.getName());
         model.get("description").set(resourceType.getDescription());
         addParents(model);
         addAttributes(model);
@@ -138,9 +138,7 @@ public class ResourceTemplate {
 
     private void addAttributes(ModelNode model) {
         ModelNode attributes = model.get("attributes");
-        for (Map.Entry<String, Attribute> attr : attributeMap.entrySet()) {
-            attributes.get(attr.getKey()).set(attr.getValue().toModelNode());
-        }
+        attributeMap.forEach((key, value) -> attributes.get(key).set(value.toModelNode()));
     }
 
     private void addHttpMethods(ModelNode modelNode) {
@@ -159,9 +157,7 @@ public class ResourceTemplate {
 
     private void addPostOperations(ModelNode httpMethods, List<String> urlPatterns) {
         ModelNode post = httpMethods.get("POST");
-        for (ModelNode op : getStateManageableOperations(urlPatterns)) {
-            post.add(op);
-        }
+        getStateManageableOperations(urlPatterns).forEach(op -> post.add(op));
         //TODO Event Provider
         //TODO Performance Monitor
         return;

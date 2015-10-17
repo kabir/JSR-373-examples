@@ -35,7 +35,6 @@ import java.util.Set;
 
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.jboss.dmr.Property;
 import org.jboss.spec.jsr373.apiexample.UrlUtil;
 import org.jboss.spec.jsr373.apiexample.resource.objects.ManagedObjectType;
 
@@ -207,31 +206,29 @@ public class ResourceInstance {
                 return builtInstance;
             }
             final Map<String, Attribute> attributeMap = template.getAttributeMap();
-            for (String attr : attributes.keySet()) {
+            attributes.keySet().forEach(attr -> {
                 if (!attributeMap.containsKey(attr)) {
                     throw new IllegalStateException("The instance tries to use an attribute '" + attr +
                             "' which does not exist in the template for " + template.getResourceTypeName());
                 }
-            }
-            for (String child : children.keySet()) {
+            });
+            children.keySet().forEach(child -> {
                 if (!attributeMap.containsKey(child)) {
                     throw new IllegalStateException("The instance tries to use an attribute '" + child +
                             "' which does not exist in the template for " + template.getResourceTypeName());
                 }
-            }
-
-            for (Map.Entry<String, Attribute> entry : attributeMap.entrySet()) {
-                final Attribute definition = entry.getValue();
-                final ModelNode value = attributes.get(entry.getKey());
+            });
+            attributeMap.forEach((key, definition) -> {
+                final ModelNode value = attributes.get(key);
                 if (value == null || !value.isDefined()) {
-                    if (!definition.isNillable() && !children.containsKey(entry.getKey())) {
-                        throw new IllegalStateException("Attribute '" + entry.getKey() +
+                    if (!definition.isNillable() && !children.containsKey(key)) {
+                        throw new IllegalStateException("Attribute '" + key +
                                 "' is not nillable and has not been set as a child");
                     }
-                    continue;
+                } else {
+                    validateAttributeValue(definition, value);
                 }
-                validateAttributeValue(definition, value);
-            }
+            });
             final ResourceInstance instance = new ResourceInstance(urlUtil, url, template, parent, name, attributes);
             if (parent != null) {
                 parent.addChild(instance);
@@ -242,7 +239,6 @@ public class ResourceInstance {
                 }
             }
             builtInstance = instance;
-
             return instance;
         }
 
@@ -254,16 +250,12 @@ public class ResourceInstance {
                     throw new IllegalStateException("'" + definition.getName() + "' is not a list");
                 }
                 List<ModelNode> list = value.asList();
-                for (ModelNode entry : list) {
-                    validateSimpleValue(definition.getValueType(), definition.getName(), entry);
-                }
+                list.forEach(entry -> validateSimpleValue(definition.getValueType(), definition.getName(), entry));
             } else if (definition.getType() == AttributeType.MAP) {
                 if (value.getType() != ModelType.OBJECT) {
                     throw new IllegalStateException("'" + definition.getName() + "' is not a list");
                 }
-                for (Property prop : value.asPropertyList()) {
-                    validateSimpleValue(definition.getValueType(), definition.getName(), prop.getValue());
-                }
+                value.asPropertyList().forEach(prop -> validateSimpleValue(definition.getValueType(), definition.getName(), prop.getValue()));
             } else {
                 throw new IllegalStateException("Unknown type " + definition.getType());
             }

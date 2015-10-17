@@ -22,7 +22,6 @@
 package org.jboss.spec.jsr373.apiexample;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,9 +30,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -103,75 +105,72 @@ public interface UrlUtil {
         }
 
         public static UrlUtil createFileInstance() throws IOException {
-            File file = Paths.get("src/main/resources/index.html").toAbsolutePath().toFile();
-            if (!file.exists()) {
+            Path path = Paths.get("src/main/resources/index.html").toAbsolutePath();
+            if (!Files.exists(path)) {
                 throw new IllegalStateException("Could not find marker");
             }
-            final File outputDirectory = new File(file.getParentFile(), "site-contents");
+            final Path outputDir = path.getParent().resolve("site-contents");
 
             return new UrlUtil() {
                 {
-                    if (outputDirectory.exists()) {
-                        delete(outputDirectory);
+                    Files.walkFileTree(outputDir, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            Files.delete(file);
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                    if (Files.exists(outputDir)) {
+                        Files.delete(outputDir);
                     }
-                    createDir(outputDirectory);
-                    System.out.println("Output directory is " + outputDirectory);
+                    Files.createDirectories(outputDir);
+                    System.out.println("Output directory is " + outputDir.toAbsolutePath());
 
                 }
 
                 @Override
                 public URL createTemplateUrl(ManagedObjectType resourceType) throws IOException {
-                    File file = new File(outputDirectory, createJsonFileName(resourceType.getName()));
-                    return file.toURI().toURL();
+                    return outputDir.resolve(createJsonFileName(resourceType.getName())).toUri().toURL();
                 }
 
                 @Override
                 public URL createInstanceUrl(String attributeName, URL parentUrl, String name) throws IOException, URISyntaxException {
-                    File parentFile;
+                    Path parent;
                     if (parentUrl != null) {
-                        parentFile = new File(parentUrl.toURI());
-                        if (!parentFile.isDirectory()) {
-                            String parentName = parentFile.getName();
+                        parent = Paths.get(parentUrl.toURI()).toAbsolutePath();
+                        if (!Files.isDirectory(parent)) {
+                            //TODO this sucks?
+                            String parentName = parent.getFileName().toString();
                             int index = parentName.indexOf(".");
                             if (index >= 0) {
                                 parentName = parentName.substring(0, index);
-                                parentFile = new File(parentFile.getParent(), parentName);
+                                parent = parent.getParent().resolve(parentName);
                             }
                         }
                     } else {
-                        parentFile = outputDirectory;
+                        parent = outputDir;
                     }
-                    Path path = Paths.get(parentFile.getAbsolutePath(), attributeName);
-                    return new File(createDir(path.toFile()), createJsonFileName(escape(name))).toURI().toURL();
+                    Path path = parent.resolve(attributeName);
+                    if (!Files.exists(path)) {
+                        Files.createDirectories(path);
+                    }
+                    return path.resolve(createJsonFileName(escape(name))).toUri().toURL();
                 }
 
                 @Override
                 public PrintWriter getWriter(URL url) throws IOException {
                     try {
-                        return new PrintWriter(new BufferedWriter(new FileWriter(new File(url.toURI()))));
+                        return new PrintWriter(new BufferedWriter(new FileWriter(Paths.get(url.toURI()).toFile())));
                     } catch (URISyntaxException e) {
                         throw new IOException(e);
                     }
                 }
-
-                private void delete(File file) {
-                    if (file.isDirectory()) {
-                        for (File entry : file.listFiles()) {
-                            delete(entry);
-                        }
-                    }
-                    file.delete();
-                }
-
-                private File createDir(File dir) throws IOException {
-                    Path path = Paths.get(dir.getAbsolutePath());
-                    File file = path.toFile();
-                    if (!file.exists()) {
-                        Files.createDirectories(path);
-                    }
-                    return file;
-                }
-
                 private String createJsonFileName(String name) {
                     return name.toLowerCase(Locale.ENGLISH) + ".json";
                 }
@@ -201,7 +200,7 @@ public interface UrlUtil {
         }
     }
 
-    public class ServletUrlRegistry {
+    class ServletUrlRegistry {
         final Map<URL, String> jsonByUrl = new LinkedHashMap<>();
 
         private PrintWriter getWriter(final URL url) {
@@ -224,14 +223,13 @@ public interface UrlUtil {
                 //Try the parent
                 String val = url.toExternalForm();
                 ModelNode list = new ModelNode().setEmptyList();
-                for (Map.Entry<URL, String> entry : jsonByUrl.entrySet()) {
+                jsonByUrl.entrySet().forEach( entry -> {
                     String current = entry.getKey().toExternalForm();
                     current = current.substring(0, current.lastIndexOf('/'));
-
                     if (current.equals(val)) {
                         list.add(ModelNode.fromJSONString(entry.getValue()));
                     }
-                }
+                });
 
                 return new StringReader(list.toJSONString(false));
             }

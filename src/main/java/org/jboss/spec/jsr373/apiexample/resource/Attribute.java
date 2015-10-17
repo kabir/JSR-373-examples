@@ -22,6 +22,7 @@
 
 package org.jboss.spec.jsr373.apiexample.resource;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -83,9 +84,7 @@ public class Attribute {
         model.get("nillable").set(nillable);
         if (!handledChildTypes.isEmpty()) {
             ModelNode allowedTypes = model.get("allowed-types").setEmptyObject();
-            for (Class<? extends ManagedObjectType> type : handledChildTypes) {
-                Util.addTypeLinkToMap(allowedTypes, ManagedObjectType.getInstanceForClass(type));
-            }
+            handledChildTypes.forEach(type -> Util.addTypeLinkToMap(allowedTypes, ManagedObjectType.getInstanceForClass(type)));
         }
         return model;
     }
@@ -120,9 +119,7 @@ public class Attribute {
         }
 
         public Builder addHandledChildTypes(Class<? extends ManagedObjectType>...types) {
-            for (Class<? extends ManagedObjectType> type : types) {
-                handledChildTypes.add(type);
-            }
+            Arrays.asList(types).forEach( type -> handledChildTypes.add(type));
             return this;
         }
 
