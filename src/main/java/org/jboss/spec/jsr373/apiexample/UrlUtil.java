@@ -211,7 +211,6 @@ public interface UrlUtil {
                     super.close();
                     synchronized (this) {
                         jsonByUrl.put(url, stringWriter.getBuffer().toString());
-                        System.out.println("Adding " + url.toExternalForm() + " to registry");
                     }
                 }
             };

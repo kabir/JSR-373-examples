@@ -27,11 +27,7 @@ package org.jboss.spec.jsr373.apiexample;
  */
 public class Main {
     public static void main(String args[]) throws Exception {
-
-        //UrlUtil.ServletUrlRegistry registry = new UrlUtil.ServletUrlRegistry();
-        //UrlUtil urlUtil = UrlUtil.Factory.createServletInstance(registry);
         UrlUtil urlUtil = UrlUtil.Factory.createFileInstance();
-        //System.out.println(System.getProperties());
         ExampleGenerator generator = new ExampleGenerator(urlUtil);
         generator.generate();
     }
