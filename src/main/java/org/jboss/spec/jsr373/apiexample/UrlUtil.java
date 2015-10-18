@@ -36,7 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -54,6 +56,10 @@ public interface UrlUtil {
 
     PrintWriter getWriter(URL url) throws IOException ;
 
+    List<URL> getAllTemplateUrls();
+
+    List<URL> getAllInstanceUrls();
+
     class Factory {
         public static final URL SERVLET_ROOT_URL;
         static {
@@ -70,17 +76,23 @@ public interface UrlUtil {
         }
 
         public static UrlUtil createServletInstance(final ServletUrlRegistry urlRegistry) throws  IOException {
+            final List<URL> templateUrls = new ArrayList<>();
+            final List<URL> instanceUrls = new ArrayList<>();
             final URL root = SERVLET_ROOT_URL;
             return new UrlUtil() {
                 @Override
                 public URL createTemplateUrl(ManagedObjectType resourceType) throws IOException {
-                    return appendURL(root, "templates", resourceType.getName().toLowerCase(Locale.ENGLISH));
+                    URL url = appendURL(root, "templates", resourceType.getName().toLowerCase(Locale.ENGLISH));
+                    templateUrls.add(url);
+                    return url;
                 }
 
                 @Override
                 public URL createInstanceUrl(String attributeName, URL parentUrl, String name) throws IOException, URISyntaxException {
                     final URL parent = parentUrl == null ? root : parentUrl;
-                    return appendURL(parent, attributeName, escape(name));
+                    URL url =  appendURL(parent, attributeName, escape(name));
+                    instanceUrls.add(url);
+                    return url;
                 }
 
                 @Override
@@ -88,7 +100,17 @@ public interface UrlUtil {
                     return urlRegistry.getWriter(url);
                 }
 
-                private URL appendURL(URL parentURL, String...pathElements) throws IOException {
+                @Override
+                public List<URL> getAllTemplateUrls() {
+                    return templateUrls;
+                }
+
+                @Override
+                public List<URL> getAllInstanceUrls() {
+                    return instanceUrls;
+                }
+
+                private URL appendURL(URL parentURL, String... pathElements) throws IOException {
                     StringBuilder parent = new StringBuilder(parentURL.toExternalForm());
                     boolean hasSlash = parent.charAt(parent.length() - 1) == '/';
 
@@ -105,7 +127,7 @@ public interface UrlUtil {
         }
 
         public static UrlUtil createFileInstance() throws IOException {
-            Path path = Paths.get("src/main/resources/index.html").toAbsolutePath();
+            Path path = Paths.get("src/main/resources/Marker").toAbsolutePath();
             if (!Files.exists(path)) {
                 throw new IllegalStateException("Could not find marker");
             }
@@ -171,6 +193,19 @@ public interface UrlUtil {
                         throw new IOException(e);
                     }
                 }
+
+                @Override
+                public List<URL> getAllTemplateUrls() {
+                    //Only bother with this in the servlet case
+                    return null;
+                }
+
+                @Override
+                public List<URL> getAllInstanceUrls() {
+                    //Only bother with this in the servlet case
+                    return null;
+                }
+
                 private String createJsonFileName(String name) {
                     return name.toLowerCase(Locale.ENGLISH) + ".json";
                 }

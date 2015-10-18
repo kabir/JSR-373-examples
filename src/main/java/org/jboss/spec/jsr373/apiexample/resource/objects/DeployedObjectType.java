@@ -50,7 +50,9 @@ public abstract class DeployedObjectType extends ManagedObjectType {
     @Override
     public void setDefaultAttributeValues(ResourceInstance.Builder builder) {
         super.setDefaultAttributeValues(builder);
-        builder.setAttribute(DEPLOYMENT_DESCRIPTOR, new ModelNode("This seems a bit pointless to me? If not we need to flesh out the format"));
+        builder.setAttribute(DEPLOYMENT_DESCRIPTOR, new ModelNode("This seems a bit pointless to me? " +
+                "If not we need to flesh out the format. I am not sure if xml is the best format to represent deployment" +
+                " descriptors and annotations."));
     }
 
     @Override
