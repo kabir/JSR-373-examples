@@ -27,6 +27,7 @@ package org.jboss.spec.jsr373.apiexample.resource;
  */
 public enum AttributeType {
     BOOLEAN(true),
+    DATE(true),
     DOUBLE(true),
     FLOAT(true),
     INT(true),

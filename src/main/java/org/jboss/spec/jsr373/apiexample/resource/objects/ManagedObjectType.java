@@ -108,7 +108,7 @@ public abstract class ManagedObjectType {
                         .setNillable()
                         .build());
         builder.addAttribute(
-                Attribute.createBuilder(START_TIME, AttributeType.LONG, "The start time of the managed object in milliseconds since January 1, 1970, 00:00:00. Will only be available if state-manageable=true.")
+                Attribute.createBuilder(START_TIME, AttributeType.DATE, "The time represented as in RFC 3339. Will only be available if state-manageable=true.")
                         .setNillable()
                         .build());
     }
