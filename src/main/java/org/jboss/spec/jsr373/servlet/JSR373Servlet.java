@@ -70,6 +70,12 @@ public class JSR373Servlet extends HttpServlet {
         }
 
         final URL url = new URL(req.getRequestURL().toString());
+        if (url.toExternalForm().endsWith("/")) {
+            String urlString = url.toExternalForm();
+            urlString = urlString.substring(0, urlString.length() - 1);
+            resp.sendRedirect(urlString);
+        }
+
         final Reader reader = urlRegistry.getReader(url);
         if (reader == null) {
             resp.sendError(resp.SC_NOT_FOUND, url.toExternalForm() + " could not be found");

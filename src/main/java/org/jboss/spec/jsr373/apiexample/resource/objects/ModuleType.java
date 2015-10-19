@@ -29,7 +29,7 @@ import org.jboss.spec.jsr373.apiexample.resource.ResourceTemplate;
  * @author Kabir Khan
  */
 public abstract class ModuleType extends DeployedObjectType {
-    public static final String JAVA_VMS = "java-VMs";
+    public static final String JAVA_VMS = "java-vms";
 
 
     protected ModuleType(String name, String path, String description) {
